@@ -1,9 +1,15 @@
-import { GET_CINEMAS, GET_CINEMA } from '../types';
+import { GET_CINEMAS, GET_CINEMA,GET_CINEMAS_MOVIE } from '../types';
 
 const initialState = {
   cinemas: [],
   selectedCinema: null
 };
+
+
+const getCinemasByMovie = (state, payload) => ({
+  ...state,
+  cinemas: payload
+});
 
 const getCinemas = (state, payload) => ({
   ...state,
@@ -23,6 +29,8 @@ export default (state = initialState, action) => {
       return getCinemas(state, payload);
     case GET_CINEMA:
       return getCinema(state, payload);
+    case GET_CINEMAS_MOVIE:
+      return getCinemasByMovie(state, payload);
     default:
       return state;
   }

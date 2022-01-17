@@ -8,7 +8,8 @@ import {
   LOGOUT
 } from '../types';
 import { setAlert } from './alert';
-import { setAuthHeaders, setUser, removeUser, isLoggedIn } from '../../utils';
+import { setAuthHeaders, removeUser, isLoggedIn } from '../../utils';
+import { setToken } from '../../utils/auth';
 
 export const uploadImage = (id, image) => async dispatch => {
   try {
@@ -31,21 +32,22 @@ export const uploadImage = (id, image) => async dispatch => {
   }
 };
 
+const host = "http://localhost:8080/api/v1";
 // Login user
 export const login = (username, password) => async dispatch => {
   try {
-    const url = '/users/login';
+    const url = host + '/authenticate';
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ email:username, password })
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
+      const { token,fullName } = responseData;
+      token && setToken(token);
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -70,10 +72,10 @@ export const facebookLogin = e => async dispatch => {
     const responseData = await response.json();
 
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
+      const { token, fullName } = responseData;
+      token && setToken(token);
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -98,10 +100,10 @@ export const googleLogin = ({ profileObj }) => async dispatch => {
     const responseData = await response.json();
 
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
+      const { token, fullName } = responseData;
+      token && setToken(token);
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -132,9 +134,9 @@ export const register = ({
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      if (image) dispatch(uploadImage(user._id, image)); // Upload image
+      const { token,id } = responseData;
+      token && setToken(token);
+      if (image) dispatch(uploadImage(id, image)); // Upload image
       dispatch({ type: REGISTER_SUCCESS, payload: responseData });
       dispatch(setAlert('Register Success', 'success', 5000));
     }
@@ -159,8 +161,8 @@ export const loadUser = () => async dispatch => {
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
+      const { token } = responseData;
+      token && setToken(token);
       dispatch({ type: USER_LOADED, payload: responseData });
     }
     if (!response.ok) dispatch({ type: AUTH_ERROR });

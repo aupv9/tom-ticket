@@ -3,12 +3,13 @@ import {
   TOGGLE_DIALOG,
   SELECT_SHOWTIMES,
   SELECT_ALL_SHOWTIMES,
-  DELETE_SHOWTIME
+  DELETE_SHOWTIME, FILTER_SHOW,
 } from '../types';
 
 const initialState = {
   showtimes: [],
   selectedShowtimes: [],
+  selectedShowtime:{},
   openDialog: false
 };
 
@@ -61,6 +62,13 @@ const deleteShowtime = (state, payload) => ({
   )
 });
 
+const filterShow = (state, payload) => ({
+  ...state,
+  showtimes:payload
+});
+
+
+
 export default (state = initialState, action) => {
   const { type, payload } = action;
 
@@ -75,6 +83,9 @@ export default (state = initialState, action) => {
       return selectAllShowtimes(state);
     case DELETE_SHOWTIME:
       return deleteShowtime(state, payload);
+
+    case FILTER_SHOW:
+      return filterShow(state, payload);
     default:
       return state;
   }

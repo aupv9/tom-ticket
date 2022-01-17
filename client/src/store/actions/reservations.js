@@ -1,5 +1,27 @@
-import { GET_RESERVATIONS, GET_RESERVATION_SUGGESTED_SEATS } from '../types';
+import { GET_RESERVATIONS, GET_RESERVATION_SUGGESTED_SEATS, GET_SHOWTIME, GET_SEATS_BY_SHOWTIME } from '../types';
 import { setAlert } from './alert';
+
+
+const host = "http://localhost:8080/api/v1";
+
+
+
+export const getSeatsByShowTime = (theater,movie,date,time) => async dispatch =>{
+  try {
+    const url = host + `/getSeatsByShowTime?theater=${theater}&date=${date}&movie=${movie}&time=${time}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const seats = await response.json();
+    if (response.ok) {
+      dispatch({ type: GET_SEATS_BY_SHOWTIME, payload: seats.content });
+    }
+  } catch (error) {
+    dispatch(setAlert(error.message, 'error', 5000));
+  }
+}
+
 
 export const getReservations = () => async dispatch => {
   try {

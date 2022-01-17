@@ -21,7 +21,7 @@ import {
   setAlert,
   addReservation,
   setSuggestedSeats,
-  setQRCode
+  setQRCode, getShowTimesFilter, getCinemasByMovie, getSeatsByShowTime, setSeats,
 } from '../../../store/actions';
 import { ResponsiveDialog } from '../../../components';
 import LoginForm from '../Login/components/LoginForm';
@@ -34,35 +34,62 @@ import BookingInvitation from './components/BookingInvitation/BookingInvitation'
 
 import jsPDF from 'jspdf';
 
+import { format } from 'date-fns'
+
+
 class BookingPage extends Component {
   didSetSuggestion = false;
 
+
   componentDidMount() {
-    const {
-      user,
-      match,
-      getMovie,
-      getCinemas,
-      getCinemasUserModeling,
-      getShowtimes,
-      getReservations,
-      getSuggestedReservationSeats
-    } = this.props;
-    getMovie(match.params.id);
-    user ? getCinemasUserModeling(user.username) : getCinemas();
-    getShowtimes();
-    getReservations();
-    if (user) getSuggestedReservationSeats(user.username);
+      const {
+        user,
+        match,
+        getMovie,
+        getCinemas,
+        getCinemasUserModeling,
+        getShowtimes,
+        getReservations,
+        getSuggestedReservationSeats,
+        getCinemasByMovie
+      } = this.props;
+      getMovie(match.params.id);
+      getCinemasByMovie(match.params.id);
+
   }
 
+  // componentDidMount() {
+  //   const {
+  //     user,
+  //     match,
+  //     getMovie,
+  //     getCinemas,
+  //     getCinemasUserModeling,
+  //     getShowtimes,
+  //     getReservations,
+  //     getSuggestedReservationSeats
+  //   } = this.props;
+  //    getCinemasByMovie(match.params.id);
+  //    // getCinemas(match.params.id);
+  //    getMovie(match.params.id);
+  //    // user ? getCinemasUserModeling(user.username) : getCinemas();
+  //    // getShowtimes();
+  //    // getReservations();
+  //   // if (user) getSuggestedReservationSeats(user.username);
+  // }
+
   componentDidUpdate(prevProps) {
-    const { selectedCinema, selectedDate, getCinema } = this.props;
-    if (
-      (selectedCinema && prevProps.selectedCinema !== selectedCinema) ||
-      (selectedCinema && prevProps.selectedDate !== selectedDate)
-    ) {
-      getCinema(selectedCinema);
+    const { selectedCinema, selectedDate, getCinema,selectedTime,movie ,getShowTimesFilter,getSeatsByShowTime,seats} = this.props;
+      if (
+          (selectedCinema && prevProps.selectedCinema !== selectedCinema) ||
+          (selectedCinema && prevProps.selectedDate !== selectedDate)
+        )
+      {
+        getShowTimesFilter(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"));
     }
+      if(selectedCinema && selectedDate && selectedTime && movie && !seats){
+        getSeatsByShowTime(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"),selectedTime)
+      }
   }
 
   // JSpdf Generator For generating the PDF
@@ -86,20 +113,26 @@ class BookingPage extends Component {
     doc.save(`${movie.title}-${cinema.name}.pdf`);
   };
 
-  onSelectSeat = (row, seat) => {
-    const { cinema, setSelectedSeats } = this.props;
-    const seats = [...cinema.seats];
-    const newSeats = [...seats];
-    if (seats[row][seat] === 1) {
-      newSeats[row][seat] = 1;
-    } else if (seats[row][seat] === 2) {
-      newSeats[row][seat] = 0;
-    } else if (seats[row][seat] === 3) {
-      newSeats[row][seat] = 2;
-    } else {
-      newSeats[row][seat] = 2;
-    }
-    setSelectedSeats([row, seat]);
+  onSelectSeat = (row,index,seat) => {
+    const { seats, setSelectedSeats, setSeats,selectedSeats } = this.props;
+
+    const seatExist = selectedSeats.find(
+      seat => seat.id === seats[row][index].id
+    );
+
+    !seatExist ?
+      (  seats[row][index] = {
+        ...seats[row][index],
+        status:'Unvaiable'
+      })
+      : (  seats[row][index] = {
+        ...seats[row][index],
+        status:'Available'
+      } );
+
+    setSeats(seats);
+
+    setSelectedSeats(seats[row][index]);
   };
 
   async checkout() {
@@ -157,54 +190,56 @@ class BookingPage extends Component {
     return bookedSeats;
   }
 
-  onFilterCinema() {
+  onFilterTimes() {
     const { cinemas, showtimes, selectedCinema, selectedTime } = this.props;
     const initialReturn = { uniqueCinemas: [], uniqueTimes: [] };
     if (!showtimes || !cinemas) return initialReturn;
 
-    const uniqueCinemasId = showtimes
-      .filter(showtime =>
-        selectedTime ? showtime.startAt === selectedTime : true
-      )
-      .map(showtime => showtime.cinemaId)
-      .filter((value, index, self) => self.indexOf(value) === index);
-
-    const uniqueCinemas = cinemas.filter(cinema =>
-      uniqueCinemasId.includes(cinema._id)
-    );
+    // const uniqueCinemasId = showtimes
+    //   .filter(showtime =>
+    //     selectedTime ? showtime.startAt === selectedTime : true
+    //   )
+    //   .map(showtime => showtime.cinemaId)
+    //   .filter((value, index, self) => self.indexOf(value) === index);
+    //
+    // const uniqueCinemas = cinemas.filter(cinema =>
+    //   uniqueCinemasId.includes(cinema.id)
+    // );
 
     const uniqueTimes = showtimes
-      .filter(showtime =>
-        selectedCinema ? selectedCinema === showtime.cinemaId : true
-      )
-      .map(showtime => showtime.startAt)
-      .filter((value, index, self) => self.indexOf(value) === index)
-      .sort(
-        (a, b) => new Date('1970/01/01 ' + a) - new Date('1970/01/01 ' + b)
-      );
+      // .filter(showtime =>
+      //   selectedCinema ? selectedCinema === showtime.cinemaId : true
+      // )
+      .map(showtime => showtime["time"])
+      // .filter((value, index, self) => self.indexOf(value) === index)
+      // .sort(
+      //   (a, b) => new Date('1970/01/01 ' + a) - new Date('1970/01/01 ' + b)
+      // );
 
-    return { ...initialReturn, uniqueCinemas, uniqueTimes };
+    return { ...initialReturn, uniqueCinemas : cinemas, uniqueTimes };
   }
 
+
   onGetReservedSeats = () => {
-    const { reservations, cinema, selectedDate, selectedTime } = this.props;
+    const { reservations, cinema, selectedDate, selectedTime ,seats} = this.props;
 
     if (!cinema) return [];
-    const newSeats = [...cinema.seats];
+    // const newSeats = [...cinema.seats];
+    const newSeats = [];
 
-    const filteredReservations = reservations.filter(
-      reservation =>
-        new Date(reservation.date).toLocaleDateString() ===
-          new Date(selectedDate).toLocaleDateString() &&
-        reservation.startAt === selectedTime
-    );
-    if (filteredReservations.length && selectedDate && selectedTime) {
-      const reservedSeats = filteredReservations
-        .map(reservation => reservation.seats)
-        .reduce((a, b) => a.concat(b));
-      reservedSeats.forEach(([row, seat]) => (newSeats[row][seat] = 1));
-      return newSeats;
-    }
+    // const filteredReservations = reservations.filter(
+    //   reservation =>
+    //     new Date(reservation.date).toLocaleDateString() ===
+    //       new Date(selectedDate).toLocaleDateString() &&
+    //     reservation.startAt === selectedTime
+    // );
+    // if (filteredReservations.length && selectedDate && selectedTime) {
+    //   const reservedSeats = filteredReservations
+    //     .map(reservation => reservation.seats)
+    //     .reduce((a, b) => a.concat(b));
+    //   reservedSeats.forEach(([row, seat]) => (newSeats[row][seat] = 1));
+    //   return newSeats;
+    // }
     return newSeats;
   };
 
@@ -361,17 +396,19 @@ class BookingPage extends Component {
       setInvitation,
       resetCheckout,
       suggestedSeats,
-      suggestedSeat
+      suggestedSeat,
+      cinemas,
+      seats
     } = this.props;
-    const { uniqueCinemas, uniqueTimes } = this.onFilterCinema();
-    let seats = this.onGetReservedSeats();
-    if (suggestedSeats && selectedTime && !suggestedSeat.length) {
-      this.onGetSuggestedSeats(seats, suggestedSeats);
-    }
-    if (suggestedSeat.length && !this.didSetSuggestion) {
-      seats = this.setSuggestionSeats(seats, suggestedSeat);
-      this.didSetSuggestion = true;
-    }
+    const {uniqueTimes} =  this.onFilterTimes();
+    // let seats = this.onGetReservedSeats();
+    // if (suggestedSeats && selectedTime && !suggestedSeat.length) {
+    //   this.onGetSuggestedSeats(seats, suggestedSeats);
+    // }
+    // if (suggestedSeat.length && !this.didSetSuggestion) {
+    //   seats = this.setSuggestionSeats(seats, suggestedSeat);
+    //   this.didSetSuggestion = true;
+    // }
 
     return (
       <Container maxWidth="xl" className={classes.container}>
@@ -379,7 +416,7 @@ class BookingPage extends Component {
           <MovieInfo movie={movie} />
           <Grid item lg={9} xs={12} md={12}>
             <BookingForm
-              cinemas={uniqueCinemas}
+              cinemas={cinemas}
               times={uniqueTimes}
               showtimes={showtimes}
               selectedCinema={selectedCinema}
@@ -400,21 +437,25 @@ class BookingPage extends Component {
               />
             )}
 
-            {cinema && selectedCinema && selectedTime && !showInvitation && (
+            {selectedCinema && selectedTime && !showInvitation && seats &&(
               <>
                 <BookingSeats
                   seats={seats}
-                  onSelectSeat={(indexRow, index) =>
-                    this.onSelectSeat(indexRow, index)
+                  onSelectSeat={(indexRow,index, seat) =>
+                    this.onSelectSeat(indexRow, index,seat)
                   }
                 />
-                <BookingCheckout
-                  user={user}
-                  ticketPrice={cinema.ticketPrice}
-                  seatsAvailable={cinema.seatsAvailable}
-                  selectedSeats={selectedSeats.length}
-                  onBookSeats={() => this.checkout()}
-                />
+                {
+                  selectedSeats &&
+                  <BookingCheckout
+                    user={user}
+                    // ticketPrice={cinema.ticketPrice}
+                    // seatsAvailable={cinema.seatsAvailable}
+                    selectedSeats={selectedSeats}
+                    onBookSeats={() => this.checkout()}
+                  />
+                }
+
               </>
             )}
           </Grid>
@@ -453,9 +494,11 @@ const mapStateToProps = (
   movie: movieState.selectedMovie,
   cinema: cinemaState.selectedCinema,
   cinemas: cinemaState.cinemas,
-  showtimes: showtimeState.showtimes.filter(
-    showtime => showtime.movieId === ownProps.match.params.id
-  ),
+  showtimes: showtimeState.showtimes
+  //   .filter(
+  //   showtime => showtime.movieId === ownProps.match.params.id
+  // )
+  ,
   reservations: reservationState.reservations,
   selectedSeats: checkoutState.selectedSeats,
   suggestedSeat: checkoutState.suggestedSeat,
@@ -466,10 +509,13 @@ const mapStateToProps = (
   showInvitation: checkoutState.showInvitation,
   invitations: checkoutState.invitations,
   QRCode: checkoutState.QRCode,
-  suggestedSeats: reservationState.suggestedSeats
+  suggestedSeats: reservationState.suggestedSeats,
+  selectedShowtime:showtimeState.selectedShowtime,
+  seats:reservationState.seats
 });
 
 const mapDispatchToProps = {
+  getCinemasByMovie,
   getMovie,
   getCinema,
   getCinemasUserModeling,
@@ -488,7 +534,11 @@ const mapDispatchToProps = {
   showInvitationForm,
   resetCheckout,
   setAlert,
-  setQRCode
+  setQRCode,
+  getShowTimesFilter,
+  getSeatsByShowTime,
+  setSeats
+
 };
 
 export default connect(

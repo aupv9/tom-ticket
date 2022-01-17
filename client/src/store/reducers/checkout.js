@@ -8,14 +8,14 @@ import {
   RESET_CHECKOUT,
   SET_INVITATION,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE
+  SET_QR_CODE, SET_SEATS,
 } from '../types';
 
 const initialState = {
   selectedSeats: [],
   suggestedSeat: [],
   selectedCinema: '',
-  selectedDate: null,
+  selectedDate: new Date(),
   selectedTime: '',
   showLoginPopup: false,
   showInvitation: false,
@@ -26,14 +26,13 @@ const initialState = {
 const setSelectedSeats = (state, seats) => {
   let newSeats = [];
   const seatExist = state.selectedSeats.find(
-    seat => JSON.stringify(seat) === JSON.stringify(seats)
+    seat => seat.id === seats.id
   );
   !seatExist
     ? (newSeats = [...state.selectedSeats, seats])
     : (newSeats = state.selectedSeats.filter(
-        seat => JSON.stringify(seat) !== JSON.stringify(seats)
+        seat => seat.id !== seats.id
       ));
-
   return {
     ...state,
     selectedSeats: newSeats
@@ -50,6 +49,7 @@ const setSuggestedSeats = (state, seats) => {
     suggestedSeat: newSeats
   };
 };
+
 
 const setSelectedCinema = (state, selectedCinema) => ({
   ...state,
@@ -84,11 +84,22 @@ const toggleLoginPopup = state => ({
   ...state,
   showLoginPopup: !state.showLoginPopup
 });
+
 const showInvitationForm = state => ({
   ...state,
   showInvitation: !state.showInvitation
 });
+
+const setSeats = (state, seats) => {
+  console.log(seats)
+  return {
+    ...state,
+    seats
+  }
+};
+
 const resetCheckout = () => initialState;
+
 
 export default function(state = initialState, action) {
   const { type, payload } = action;
@@ -113,6 +124,8 @@ export default function(state = initialState, action) {
       return setQRCode(state, payload);
     case RESET_CHECKOUT:
       return resetCheckout();
+    case SET_SEATS:
+      return setSeats(state,payload);
     default:
       return state;
   }

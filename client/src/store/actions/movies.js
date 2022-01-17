@@ -22,16 +22,18 @@ export const uploadMovieImage = (id, image) => async dispatch => {
   }
 };
 
+const host = "http://localhost:8080/api/v1"
+
 export const getMovies = () => async dispatch => {
   try {
-    const url = '/movies';
+    const url = host+'/movies-nowPlaying';
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });
     const movies = await response.json();
     if (response.ok) {
-      dispatch({ type: GET_MOVIES, payload: movies });
+      dispatch({ type: GET_MOVIES, payload: movies.content });
     }
   } catch (error) {
     dispatch(setAlert(error.message, 'error', 5000));
@@ -43,9 +45,10 @@ export const onSelectMovie = movie => ({
   payload: movie
 });
 
+
 export const getMovie = id => async dispatch => {
   try {
-    const url = '/movies/' + id;
+    const url = host + '/movies/' + id;
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }

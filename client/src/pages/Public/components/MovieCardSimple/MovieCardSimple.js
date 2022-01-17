@@ -27,15 +27,14 @@ const useStyles = makeStyles(theme => ({
 const MovieCardSimple = props => {
   const classes = useStyles();
   const { movie } = props;
-
   return (
-    <Link to={`movie/${movie._id}`} style={{ textDecoration: 'none' }}>
+    <Link to={`movie/${movie.id}`} style={{ textDecoration: 'none' }}>
       <Card className={classes.card}>
         <CardActionArea>
           <CardMedia
             className={classes.media}
-            image={movie.image}
-            title={movie.title}
+            image={movie["thumbnail"]}
+            title={movie.name}
           />
           <CardContent>
             <Typography
@@ -44,7 +43,7 @@ const MovieCardSimple = props => {
               variant="h5"
               component="h2"
               color="inherit">
-              {movie.title}
+              {movie.name}
             </Typography>
           </CardContent>
         </CardActionArea>

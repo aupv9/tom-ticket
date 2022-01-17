@@ -12,18 +12,20 @@ const initialState = {
 
 const getMovies = (state, payload) => {
   const latestMovies = payload
-    .sort((a, b) => Date.parse(b.releaseDate) - Date.parse(a.releaseDate))
+    .sort((a, b) => Date.parse(b.releasedDate) - Date.parse(a.releasedDate))
     .slice(0, 5);
 
-  const nowShowing = payload.filter(
-    movie =>
-      new Date(movie.endDate) >= new Date() &&
-      new Date(movie.releaseDate) < new Date()
-  );
+  const nowShowing = payload;
+  // .filter(
+  //   movie =>
+  //     new Date(movie.endDate) >= new Date() &&
+  //     new Date(movie.releaseDate) < new Date()
+  // );
 
-  const comingSoon = payload.filter(
-    movie => new Date(movie.releaseDate) > new Date()
-  );
+  const comingSoon = payload;
+  //   = payload.filter(
+  //   movie => new Date(movie.releaseDate) > new Date()
+  // );
 
   return {
     ...state,

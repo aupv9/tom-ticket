@@ -26,7 +26,9 @@ const StyledRating = withStyles({
 })(Rating);
 
 function MovieBanner(props) {
+
   const { movie, fullDescription } = props;
+
   const classes = useStyles(props);
   if (!movie) return null;
 
@@ -36,15 +38,15 @@ function MovieBanner(props) {
         <header className={classes.movieHeader}>
           {fullDescription && (
             <Box mb={3} display="flex" alignItems="center" flexWrap="wrap">
-              {movie.genre.split(',').map((genre, index) => (
-                <Typography
-                  key={`${genre}-${index}`}
-                  className={classes.tag}
-                  variant="body1"
-                  color="inherit">
-                  {genre}
-                </Typography>
-              ))}
+              {/*{movie.genre.split(',').map((genre, index) => (*/}
+              {/*  <Typography*/}
+              {/*    key={`${genre}-${index}`}*/}
+              {/*    className={classes.tag}*/}
+              {/*    variant="body1"*/}
+              {/*    color="inherit">*/}
+              {/*    {genre}*/}
+              {/*  </Typography>*/}
+              {/*))}*/}
 
               <StyledRating
                 value={4}
@@ -58,22 +60,22 @@ function MovieBanner(props) {
             className={classes.movieTitle}
             variant="h1"
             color="inherit">
-            {movie.title}
+            {movie.name}
           </Typography>
-          <Typography
-            className={classes.descriptionText}
-            variant="body1"
-            color="inherit">
-            {textTruncate(movie.description, 450)}
-          </Typography>
-          <Typography className={classes.director} variant="h4" color="inherit">
-            By: {movie.director}
-          </Typography>
+          {/*<Typography*/}
+          {/*  className={classes.descriptionText}*/}
+          {/*  variant="body1"*/}
+          {/*  color="inherit">*/}
+          {/*  {textTruncate(movie.description, 450)}*/}
+          {/*</Typography>*/}
+          {/*<Typography className={classes.director} variant="h4" color="inherit">*/}
+          {/*  By: {movie.director}*/}
+          {/*</Typography>*/}
           <Typography
             className={classes.duration}
             variant="body1"
             color="inherit">
-            {movie.duration} min
+            {movie.durationMin} min
           </Typography>
           <Typography className={classes.genre} variant="body1" color="inherit">
             {movie.genre}
@@ -83,19 +85,19 @@ function MovieBanner(props) {
       <div
         className={classes.blurBackground}
         style={{
-          backgroundImage: `url(${movie.image})`
+          backgroundImage: `url(${movie["image"]})`
         }}
       />
       <div className={classes.movieActions}>
         {fullDescription ? (
-          <Link to={`booking/${movie._id}`} style={{ textDecoration: 'none' }}>
+          <Link to={`booking/${movie.id}`} style={{ textDecoration: 'none' }}>
             <Button variant="contained" className={classes.button}>
               Buy Tickets
               <ArrowRightAlt className={classes.buttonIcon} />
             </Button>
           </Link>
         ) : (
-          <Link to={`movie/${movie._id}`} style={{ textDecoration: 'none' }}>
+          <Link to={`movie/${movie.id}`} style={{ textDecoration: 'none' }}>
             <Button className={classnames(classes.button, classes.learnMore)}>
               Learn More
               <ArrowRightAlt className={classes.buttonIcon} />

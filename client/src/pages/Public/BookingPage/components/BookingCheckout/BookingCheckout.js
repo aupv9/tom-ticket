@@ -26,9 +26,9 @@ export default function BookingCheckout(props) {
   const {
     user,
     ticketPrice,
-    selectedSeats,
     seatsAvailable,
-    onBookSeats
+    onBookSeats,
+    selectedSeats
   } = props;
 
   return (
@@ -46,9 +46,9 @@ export default function BookingCheckout(props) {
             )}
             <Grid item>
               <Typography className={classes.bannerTitle}>Tickets</Typography>
-              {selectedSeats > 0 ? (
+              {selectedSeats  && selectedSeats.length > 0 ? (
                 <Typography className={classes.bannerContent}>
-                  {selectedSeats} tickets
+                  {selectedSeats.length} tickets
                 </Typography>
               ) : (
                 <Typography className={classes.bannerContent}>0</Typography>
@@ -57,7 +57,9 @@ export default function BookingCheckout(props) {
             <Grid item>
               <Typography className={classes.bannerTitle}>Price</Typography>
               <Typography className={classes.bannerContent}>
-                {ticketPrice * selectedSeats} &euro;
+                { selectedSeats && selectedSeats[0] &&
+                  selectedSeats[0]["price"] * selectedSeats.length
+                } vnd
               </Typography>
             </Grid>
           </Grid>

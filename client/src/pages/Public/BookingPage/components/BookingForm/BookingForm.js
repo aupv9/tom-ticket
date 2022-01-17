@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid, Box, TextField, MenuItem, Typography } from '@material-ui/core';
 import {
   MuiPickersUtilsProvider,
@@ -9,19 +9,21 @@ import MomentUtils from '@date-io/moment';
 export default function BookingForm(props) {
   const {
     cinemas,
-    showtimes,
     selectedCinema,
     onChangeCinema,
     selectedDate,
     onChangeDate,
-    times,
+     times,
     selectedTime,
-    onChangeTime
+    onChangeTime,
+    showtimes
   } = props;
 
-  const showtime = showtimes.find(
-    showtime => showtime.cinemaId === selectedCinema
-  );
+  // const [times,setTimes] = useState([]);
+  // if(showtimes.length > 0){
+  //    const times = showtimes.map((item) => item["time"])
+  //     setTimes(times)
+  // }
 
   if (!cinemas.length)
     return (
@@ -48,23 +50,23 @@ export default function BookingForm(props) {
           variant="outlined"
           onChange={onChangeCinema}>
           {cinemas.map(cinema => (
-            <MenuItem key={cinema._id} value={cinema._id}>
+            <MenuItem key={cinema.id} value={cinema.id}>
               {cinema.name}
             </MenuItem>
           ))}
         </TextField>
       </Grid>
-      {showtime && (
+      {
+        showtimes &&
         <Grid item xs>
           <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDatePicker
               inputVariant="outlined"
               margin="none"
               fullWidth
+              // format="yyyy-MM-dd"
               id="start-date"
               label="Start Date"
-              minDate={new Date(showtime.startDate)}
-              maxDate={new Date(showtime.endDate)}
               value={selectedDate}
               onChange={date => onChangeDate(date._d)}
               KeyboardButtonProps={{
@@ -73,8 +75,11 @@ export default function BookingForm(props) {
             />
           </MuiPickersUtilsProvider>
         </Grid>
-      )}
-      {selectedDate && (
+      }
+
+
+      {
+        showtimes &&
         <Grid item xs>
           <TextField
             fullWidth
@@ -84,13 +89,15 @@ export default function BookingForm(props) {
             variant="outlined"
             onChange={onChangeTime}>
             {times.map((time, index) => (
-              <MenuItem key={time + '-' + index} value={time}>
+              <MenuItem key={time[time] + '-' + index} value={time}>
                 {time}
               </MenuItem>
             ))}
           </TextField>
         </Grid>
-      )}
+      }
+
+
     </Grid>
   );
 }

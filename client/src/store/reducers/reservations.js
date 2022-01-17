@@ -1,4 +1,4 @@
-import { GET_RESERVATIONS,GET_RESERVATION_SUGGESTED_SEATS } from '../types';
+import { GET_RESERVATIONS, GET_RESERVATION_SUGGESTED_SEATS, GET_SEATS_BY_SHOWTIME } from '../types';
 
 const initialState = {
   reservations: []
@@ -14,6 +14,11 @@ const getReservationSuggestedSeats = (state, payload) => ({
   suggestedSeats: payload
 });
 
+const getSeatsByShowtime = (state, payload) => ({
+  ...state,
+  seats: payload
+});
+
 export default (state = initialState, action) => {
   const { type, payload } = action;
 
@@ -22,6 +27,8 @@ export default (state = initialState, action) => {
       return getReservations(state, payload);
     case GET_RESERVATION_SUGGESTED_SEATS:
       return getReservationSuggestedSeats(state, payload);
+    case GET_SEATS_BY_SHOWTIME:
+      return getSeatsByShowtime(state, payload);
     default:
       return state;
   }

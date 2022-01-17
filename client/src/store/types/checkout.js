@@ -8,3 +8,5 @@ export const SHOW_INVITATION_FORM = 'SHOW_INVITATION_FORM';
 export const SET_INVITATION = 'SET_INVITATION';
 export const SET_QR_CODE = 'SET_QR_CODE';
 export const RESET_CHECKOUT = 'RESET_CHECKOUT';
+
+export const SET_SEATS = 'SET_SEATS';

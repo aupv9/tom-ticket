@@ -1,5 +1,7 @@
-import { GET_CINEMAS, GET_CINEMA } from '../types';
+import { GET_CINEMAS, GET_CINEMA, GET_CINEMAS_MOVIE } from '../types';
 import { setAlert } from './alert';
+
+const host = "http://localhost:8080/api/v1/";
 
 export const uploadCinemaImage = (id, image) => async dispatch => {
   try {
@@ -22,25 +24,43 @@ export const uploadCinemaImage = (id, image) => async dispatch => {
   }
 };
 
-export const getCinemas = () => async dispatch => {
+export const getCinemasByMovie = movieId => async dispatch => {
   try {
-    const url = '/cinemas';
+    const url = host + `cinemasByMovie?movieId=${movieId}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });
     const cinemas = await response.json();
     if (response.ok) {
-      dispatch({ type: GET_CINEMAS, payload: cinemas });
+      dispatch({ type: GET_CINEMAS_MOVIE, payload: cinemas.content });
     }
   } catch (error) {
     dispatch(setAlert(error.message, 'error', 5000));
   }
 };
 
-export const getCinema = id => async dispatch => {
+
+
+export const getCinemas = (movieId) => async dispatch => {
   try {
-    const url = '/cinemas/' + id;
+    const url = host + `cinemasByMovie?movieId=${movieId}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const cinemas = await response.json();
+    if (response.ok) {
+      dispatch({ type: GET_CINEMAS_MOVIE, payload: cinemas.content });
+    }
+  } catch (error) {
+    dispatch(setAlert(error.message, 'error', 5000));
+  }
+};
+
+export const getCinema = (theater,movie,date,time)=> async dispatch => {
+  try {
+    const url = host + `/seatTheaterAnonymous?theater=${theater}&date=${date}&time=${time}&movie=${movie}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
@@ -147,3 +167,5 @@ export const getCinemasUserModeling = username => async dispatch => {
     dispatch(setAlert(error.message, 'error', 5000));
   }
 };
+
+

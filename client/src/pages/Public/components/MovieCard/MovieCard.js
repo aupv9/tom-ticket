@@ -9,7 +9,7 @@ const MovieCard = props => {
   const { classes, movie } = props;
 
   return (
-    <Link to={`movie/${movie._id}`} style={{ textDecoration: 'none' }}>
+    <Link to={`movie/${movie.id}`} style={{ textDecoration: 'none' }}>
       <div className={classes.card}>
         <header
           className={classes.header}
@@ -21,12 +21,12 @@ const MovieCard = props => {
           </Typography>
         </header>
         <div className={classes.body}>
-          <p>{movie.duration}</p>
-          <h2>{movie.title}</h2>
-          <p>{movie.language}</p>
-          <p>{movie.cast}</p>
-          <p>{movie.director}</p>
-          <p>{textTruncate(movie.description)}</p>
+          <p>{movie.durationMin}</p>
+          <h2>{movie.name}</h2>
+          {/*<p>{movie.language}</p>*/}
+          {/*<p>{movie.cast}</p>*/}
+          {/*<p>{movie.director}</p>*/}
+          {/*<p>{textTruncate(movie.description)}</p>*/}
         </div>
       </div>
     </Link>

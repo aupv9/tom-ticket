@@ -8,7 +8,7 @@ import {
   SHOW_INVITATION_FORM,
   RESET_CHECKOUT,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE
+  SET_QR_CODE, SET_SEATS,
 } from '../types';
 
 export const setSelectedSeats = seats => ({
@@ -25,10 +25,12 @@ export const setSelectedCinema = cinema => ({
   type: SET_SELECTED_CINEMA,
   payload: cinema
 });
+
 export const setSelectedDate = date => ({
   type: SET_SELECTED_DATE,
   payload: date
 });
+
 export const setSelectedTime = time => ({
   type: SET_SELECTED_TIME,
   payload: time
@@ -41,6 +43,12 @@ export const setInvitation = event => ({
 export const setQRCode = QRCode => ({
   type: SET_QR_CODE,
   payload: QRCode
+});
+
+
+export const setSeats = seat => ({
+  type: SET_SEATS,
+  payload: seat
 });
 
 export const toggleLoginPopup = () => ({ type: TOGGLE_LOGIN_POPUP });

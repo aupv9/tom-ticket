@@ -3,7 +3,7 @@ import {
   SELECT_SHOWTIMES,
   SELECT_ALL_SHOWTIMES,
   GET_SHOWTIMES,
-  DELETE_SHOWTIME
+  DELETE_SHOWTIME, GET_CINEMA, FILTER_SHOW, GET_SHOWTIME,
 } from '../types';
 import { setAlert } from './alert';
 
@@ -13,22 +13,39 @@ export const selectShowtime = showtime => ({
   type: SELECT_SHOWTIMES,
   payload: showtime
 });
+const host = "http://localhost:8080/api/v1"
+
 
 export const selectAllShowtimes = () => ({ type: SELECT_ALL_SHOWTIMES });
 
-export const getShowtimes = () => async dispatch => {
+
+
+export const getShowTimesFilter = (theater,movie,date) => async dispatch =>{
   try {
-    const token = localStorage.getItem('jwtToken');
-    const url = '/showtimes';
+    const url = host + `/showByTheaterAnonymous?theater=${theater}&date=${date}&movie=${movie}`;
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
-    const showtimes = await response.json();
+    const showTimes = await response.json();
     if (response.ok) {
-      dispatch({ type: GET_SHOWTIMES, payload: showtimes });
+      dispatch({ type: FILTER_SHOW, payload: showTimes.content });
+    }
+  } catch (error) {
+    dispatch(setAlert(error.message, 'error', 5000));
+  }
+}
+
+export const getShowtimes = (theater,movie,date) => async dispatch => {
+  try {
+    const url = host + `/seatTheaterAnonymous?theater=${theater}&date=${date}&movie=${movie}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const showTimes = await response.json();
+    if (response.ok) {
+      dispatch({ type: FILTER_SHOW, payload: showTimes });
     }
   } catch (error) {
     dispatch(setAlert(error.message, 'error', 5000));
