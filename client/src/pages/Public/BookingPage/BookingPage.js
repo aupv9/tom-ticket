@@ -21,7 +21,13 @@ import {
   setAlert,
   addReservation,
   setSuggestedSeats,
-  setQRCode, getShowTimesFilter, getCinemasByMovie, getSeatsByShowTime, setSeats,
+  setQRCode,
+  getShowTimesFilter,
+  getCinemasByMovie,
+  getSeatsByShowTime,
+  setSeats,
+  showConcession,
+  showConcessions, setShowTime,
 } from '../../../store/actions';
 import { ResponsiveDialog } from '../../../components';
 import LoginForm from '../Login/components/LoginForm';
@@ -35,6 +41,9 @@ import BookingInvitation from './components/BookingInvitation/BookingInvitation'
 import jsPDF from 'jspdf';
 
 import { format } from 'date-fns'
+import BookingConcession from './components/BookingConcession/BookingConcession';
+import { addFood, getConcession, removeFood, setSubTotal } from '../../../store/actions/concession';
+import { setFoodTotal } from '../../../store/reducers/concession';
 
 
 class BookingPage extends Component {
@@ -51,11 +60,14 @@ class BookingPage extends Component {
         getShowtimes,
         getReservations,
         getSuggestedReservationSeats,
-        getCinemasByMovie
+        getCinemasByMovie,
+        getConcession
       } = this.props;
-      getMovie(match.params.id);
-      getCinemasByMovie(match.params.id);
-
+      if(match.params.id){
+        getMovie(match.params.id);
+        getCinemasByMovie(match.params.id);
+      }
+      getConcession();
   }
 
   // componentDidMount() {
@@ -79,16 +91,21 @@ class BookingPage extends Component {
   // }
 
   componentDidUpdate(prevProps) {
-    const { selectedCinema, selectedDate, getCinema,selectedTime,movie ,getShowTimesFilter,getSeatsByShowTime,seats} = this.props;
-      if (
-          (selectedCinema && prevProps.selectedCinema !== selectedCinema) ||
-          (selectedCinema && prevProps.selectedDate !== selectedDate)
-        )
-      {
+    const { selectedCinema, selectedDate,selectedTime,movie ,getShowTimesFilter,getSeatsByShowTime,setShowTime,selectedSeats,setSubTotal} = this.props;
+
+      if ((selectedCinema && prevProps.selectedCinema !== selectedCinema) || (selectedCinema && prevProps.selectedDate !== selectedDate)) {
         getShowTimesFilter(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"));
-    }
-      if(selectedCinema && selectedDate && selectedTime && movie && !seats){
-        getSeatsByShowTime(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"),selectedTime)
+      }
+      if(
+          ( prevProps.selectedCinema !== selectedCinema && selectedDate && selectedTime) ||
+          (prevProps.selectedDate !== selectedDate && selectedDate && selectedTime)||
+          (prevProps.selectedTime !== selectedTime && selectedDate && selectedTime) ){
+        getSeatsByShowTime(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"),selectedTime);
+        setShowTime(selectedCinema,movie.id,format(new Date(selectedDate),"yyyy-MM-dd"),selectedTime);
+
+      }
+      if(prevProps.selectedSeats !== selectedSeats){
+        setSubTotal(selectedSeats && selectedSeats[0] && selectedSeats[0]["price"] * selectedSeats.length);
       }
   }
 
@@ -113,8 +130,10 @@ class BookingPage extends Component {
     doc.save(`${movie.title}-${cinema.name}.pdf`);
   };
 
+
+
   onSelectSeat = (row,index,seat) => {
-    const { seats, setSelectedSeats, setSeats,selectedSeats } = this.props;
+    const { seats, setSelectedSeats, setSeats,selectedSeats, setSubTotal } = this.props;
 
     const seatExist = selectedSeats.find(
       seat => seat.id === seats[row][index].id
@@ -131,9 +150,9 @@ class BookingPage extends Component {
       } );
 
     setSeats(seats);
-
     setSelectedSeats(seats[row][index]);
   };
+
 
   async checkout() {
     const {
@@ -148,29 +167,30 @@ class BookingPage extends Component {
       addReservation,
       toggleLoginPopup,
       showInvitationForm,
-      setQRCode
+      setQRCode,
+      showConcessions
     } = this.props;
-
     if (selectedSeats.length === 0) return;
     if (!isAuth) return toggleLoginPopup();
 
-    const response = await addReservation({
-      date: selectedDate,
-      startAt: selectedTime,
-      seats: this.bookSeats(),
-      ticketPrice: cinema.ticketPrice,
-      total: selectedSeats.length * cinema.ticketPrice,
-      movieId: movie._id,
-      cinemaId: cinema._id,
-      username: user.username,
-      phone: user.phone
-    });
-    if (response.status === 'success') {
-      const { data } = response;
-      setQRCode(data.QRCode);
-      getReservations();
-      showInvitationForm();
-    }
+    // const response = await addReservation({
+    //   date: selectedDate,
+    //   startAt: selectedTime,
+    //   seats: this.bookSeats(),
+    //   ticketPrice: cinema.ticketPrice,
+    //   total: selectedSeats.length * cinema.ticketPrice,
+    //   movieId: movie._id,
+    //   cinemaId: cinema._id,
+    //   username: user.username,
+    //   phone: user.phone
+    // });
+    // if (response.status === 'success') {
+    //   const { data } = response;
+    //   setQRCode(data.QRCode);
+    //   getReservations();
+     showConcessions();
+     // showInvitationForm();
+    // }
   }
 
   bookSeats() {
@@ -398,7 +418,16 @@ class BookingPage extends Component {
       suggestedSeats,
       suggestedSeat,
       cinemas,
-      seats
+      seats,
+      showConcession,
+      showConcessions,
+      concessions,
+      selectedFood,
+      addFood,
+      removeFood,
+      setSubTotal,
+      subTotal,
+      showtime
     } = this.props;
     const {uniqueTimes} =  this.onFilterTimes();
     // let seats = this.onGetReservedSeats();
@@ -415,29 +444,48 @@ class BookingPage extends Component {
         <Grid container spacing={2} style={{ height: '100%' }}>
           <MovieInfo movie={movie} />
           <Grid item lg={9} xs={12} md={12}>
-            <BookingForm
-              cinemas={cinemas}
-              times={uniqueTimes}
-              showtimes={showtimes}
-              selectedCinema={selectedCinema}
-              selectedDate={selectedDate}
-              selectedTime={selectedTime}
-              onChangeCinema={this.onChangeCinema}
-              onChangeDate={this.onChangeDate}
-              onChangeTime={this.onChangeTime}
-            />
-            {showInvitation && !!selectedSeats.length && (
-              <BookingInvitation
-                selectedSeats={selectedSeats}
-                sendInvitations={this.sendInvitations}
-                ignore={resetCheckout}
-                invitations={invitations}
-                onSetInvitation={setInvitation}
-                onDownloadPDF={this.jsPdfGenerator}
+            {
+              !showConcession &&
+              <BookingForm
+                cinemas={cinemas}
+                times={uniqueTimes}
+                showtimes={showtimes}
+                selectedCinema={selectedCinema}
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+                onChangeCinema={this.onChangeCinema}
+                onChangeDate={this.onChangeDate}
+                onChangeTime={this.onChangeTime}
               />
-            )}
+            }
 
-            {selectedCinema && selectedTime && !showInvitation && seats &&(
+            {/*{showInvitation && !!selectedSeats.length && (*/}
+            {/*  <BookingInvitation*/}
+            {/*    selectedSeats={selectedSeats}*/}
+            {/*    sendInvitations={this.sendInvitations}*/}
+            {/*    ignore={resetCheckout}*/}
+            {/*    invitations={invitations}*/}
+            {/*    onSetInvitation={setInvitation}*/}
+            {/*    onDownloadPDF={this.jsPdfGenerator}*/}
+            {/*  />*/}
+            {/*)}*/}
+
+            {
+              showConcession && !!selectedSeats.length && (
+                <BookingConcession
+                  selectedSeats={selectedSeats}
+                  concessions={concessions}
+                  selectedFood={selectedFood}
+                  addFood={(item) => addFood(item)}
+                  removeFood={(item) => removeFood(item)}
+                  setSubTotal={(subTotal) => setSubTotal(subTotal)}
+                  subTotal={subTotal}
+                  showtime={showtime}
+                />
+              )
+            }
+
+            {selectedCinema && selectedTime && !showConcession && seats &&(
               <>
                 <BookingSeats
                   seats={seats}
@@ -453,6 +501,8 @@ class BookingPage extends Component {
                     // seatsAvailable={cinema.seatsAvailable}
                     selectedSeats={selectedSeats}
                     onBookSeats={() => this.checkout()}
+                    subTotal={subTotal}
+                    setSubTotal={setSubTotal}
                   />
                 }
 
@@ -485,7 +535,8 @@ const mapStateToProps = (
     cinemaState,
     showtimeState,
     reservationState,
-    checkoutState
+    checkoutState,
+    food
   },
   ownProps
 ) => ({
@@ -494,11 +545,7 @@ const mapStateToProps = (
   movie: movieState.selectedMovie,
   cinema: cinemaState.selectedCinema,
   cinemas: cinemaState.cinemas,
-  showtimes: showtimeState.showtimes
-  //   .filter(
-  //   showtime => showtime.movieId === ownProps.match.params.id
-  // )
-  ,
+  showtimes: showtimeState.showtimes,
   reservations: reservationState.reservations,
   selectedSeats: checkoutState.selectedSeats,
   suggestedSeat: checkoutState.suggestedSeat,
@@ -511,7 +558,13 @@ const mapStateToProps = (
   QRCode: checkoutState.QRCode,
   suggestedSeats: reservationState.suggestedSeats,
   selectedShowtime:showtimeState.selectedShowtime,
-  seats:reservationState.seats
+  seats:reservationState.seats,
+  showConcession:checkoutState.showConcession,
+  concessions:food.concessions,
+  selectedFood:food.selectedFood,
+  subTotal:food.subTotal,
+  showtime:showtimeState.showtime,
+  foodTotal:food.foodTotal
 });
 
 const mapDispatchToProps = {
@@ -537,8 +590,14 @@ const mapDispatchToProps = {
   setQRCode,
   getShowTimesFilter,
   getSeatsByShowTime,
-  setSeats
-
+  setSeats,
+  showConcessions,
+  getConcession,
+  addFood,
+  removeFood,
+  setSubTotal,
+  setShowTime,
+  setFoodTotal
 };
 
 export default connect(

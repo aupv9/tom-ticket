@@ -8,7 +8,7 @@ import {
   RESET_CHECKOUT,
   SET_INVITATION,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE, SET_SEATS,
+  SET_QR_CODE, SET_SEATS, SHOW_CONCESSION, SET_SELECTED_FOOD,
 } from '../types';
 
 const initialState = {
@@ -20,7 +20,8 @@ const initialState = {
   showLoginPopup: false,
   showInvitation: false,
   invitations: {},
-  QRCode: ''
+  QRCode: '',
+  showConcession:false,
 };
 
 const setSelectedSeats = (state, seats) => {
@@ -90,13 +91,21 @@ const showInvitationForm = state => ({
   showInvitation: !state.showInvitation
 });
 
+const showedConcession = state => ({
+  ...state,
+  showConcession: !state.showConcession
+});
+
+
 const setSeats = (state, seats) => {
-  console.log(seats)
   return {
     ...state,
     seats
   }
 };
+
+
+
 
 const resetCheckout = () => initialState;
 
@@ -126,6 +135,9 @@ export default function(state = initialState, action) {
       return resetCheckout();
     case SET_SEATS:
       return setSeats(state,payload);
+    case SHOW_CONCESSION:
+      return showedConcession(state);
+
     default:
       return state;
   }

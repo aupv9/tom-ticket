@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Box, Grid, Typography, Button } from '@material-ui/core';
 
@@ -21,22 +21,27 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function BookingCheckout(props) {
+export default function BookingEnd(props) {
   const classes = useStyles(props);
   const {
     user,
-    ticketPrice,
     seatsAvailable,
     onBookSeats,
     selectedSeats,
-    setSubTotal,
-    subTotal
+    selectedFood,
+    showtime,
+    subTotal,
+    setSubTotal
   } = props;
 
-  const calSubTotal = () =>{
-    const {selectedSeats } = this.props;
-    return selectedSeats && selectedSeats[0] && selectedSeats[0]["price"] * selectedSeats
+  const onBookEnd = async () =>{
+
   }
+
+  useEffect(() =>{
+
+  },[])
+
 
   return (
     <Box marginTop={2} bgcolor="rgb(18, 20, 24)">
@@ -56,6 +61,16 @@ export default function BookingCheckout(props) {
               {selectedSeats  && selectedSeats.length > 0 ? (
                 <Typography className={classes.bannerContent}>
                   {selectedSeats.length} tickets
+                </Typography>
+              ) : (
+                <Typography className={classes.bannerContent}>0</Typography>
+              )}
+            </Grid>
+            <Grid item>
+              <Typography className={classes.bannerTitle}>Foods</Typography>
+              {selectedSeats  && selectedSeats.length > 0 ? (
+                <Typography className={classes.bannerContent}>
+                  {selectedFood.length} foods
                 </Typography>
               ) : (
                 <Typography className={classes.bannerContent}>0</Typography>
@@ -84,7 +99,7 @@ export default function BookingCheckout(props) {
             color="inherit"
             fullWidth
             disabled={seatsAvailable <= 0}
-            onClick={() => onBookSeats()}>
+            onClick={() => onBookEnd()}>
             Next
           </Button>
         </Grid>

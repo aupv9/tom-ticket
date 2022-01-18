@@ -21,7 +21,7 @@ export const selectAllUsers = () => ({ type: SELECT_ALL_USERS });
 
 export const getUsers = () => async dispatch => {
   try {
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem('token');
     const url = '/users';
     const response = await fetch(url, {
       method: 'GET',

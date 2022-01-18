@@ -1,7 +1,7 @@
 export const isBrowser = () => typeof window !== 'undefined';
 export const getUser = () =>
-  isBrowser() && window.localStorage.getItem('user')
-    ? JSON.parse(window.localStorage.getItem('user'))
+  isBrowser() && window.localStorage.getItem('token')
+    ? window.localStorage.getItem('token')
     : {};
 
 export const setToken = token =>
@@ -9,5 +9,5 @@ export const setToken = token =>
 export const removeUser = () => window.localStorage.removeItem('token');
 export const isLoggedIn = () => {
   const user = getUser();
-  return !!user.username;
+  return !!user;
 };

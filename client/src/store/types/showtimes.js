@@ -9,3 +9,5 @@ export const SELECT_ALL_SHOWTIMES = 'SELECT_ALL_SHOWTIMES';
 export const FILTER_SHOW = 'FILTER_SHOW';
 
 export const GET_SHOWTIME = 'GET_SHOWTIME';
+
+export const SET_SHOWTIME = 'SET_SHOWTIME';

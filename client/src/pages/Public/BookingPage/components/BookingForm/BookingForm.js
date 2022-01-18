@@ -13,7 +13,7 @@ export default function BookingForm(props) {
     onChangeCinema,
     selectedDate,
     onChangeDate,
-     times,
+    times,
     selectedTime,
     onChangeTime,
     showtimes
@@ -41,30 +41,33 @@ export default function BookingForm(props) {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs>
-        <TextField
-          fullWidth
-          select
-          value={selectedCinema}
-          label="Select Cinema"
-          variant="outlined"
-          onChange={onChangeCinema}>
-          {cinemas.map(cinema => (
-            <MenuItem key={cinema.id} value={cinema.id}>
-              {cinema.name}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Grid>
       {
-        showtimes &&
+        cinemas && showtimes &&
+        <Grid item xs>
+          <TextField
+            fullWidth
+            select
+            value={selectedCinema}
+            label="Select Cinema"
+            variant="outlined"
+            onChange={onChangeCinema}>
+            {cinemas.map(cinema => (
+              <MenuItem key={cinema.id} value={cinema.id}>
+                {cinema.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      }
+      {
+        cinemas && showtimes && selectedCinema &&
         <Grid item xs>
           <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDatePicker
               inputVariant="outlined"
               margin="none"
               fullWidth
-              // format="yyyy-MM-dd"
+               // format="dd-MM-yyyy"
               id="start-date"
               label="Start Date"
               value={selectedDate}
@@ -72,14 +75,14 @@ export default function BookingForm(props) {
               KeyboardButtonProps={{
                 'aria-label': 'change date'
               }}
+              minDate={new Date()}
             />
           </MuiPickersUtilsProvider>
         </Grid>
       }
 
-
       {
-        showtimes &&
+        cinemas && showtimes && selectedCinema && selectedDate && times &&
         <Grid item xs>
           <TextField
             fullWidth

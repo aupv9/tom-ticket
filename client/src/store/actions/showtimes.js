@@ -3,7 +3,7 @@ import {
   SELECT_SHOWTIMES,
   SELECT_ALL_SHOWTIMES,
   GET_SHOWTIMES,
-  DELETE_SHOWTIME, GET_CINEMA, FILTER_SHOW, GET_SHOWTIME,
+  DELETE_SHOWTIME, GET_CINEMA, FILTER_SHOW, GET_SHOWTIME, SET_SHOWTIME,
 } from '../types';
 import { setAlert } from './alert';
 
@@ -52,6 +52,21 @@ export const getShowtimes = (theater,movie,date) => async dispatch => {
   }
 };
 
+export const setShowTime = (theater,movie,date,time) => async dispatch => {
+  try {
+    const url = host + `/getShowTimeAnounymous?theater=${theater}&date=${date}&movie=${movie}&&time=${time}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const showTimes = await response.json();
+    if (response.ok) {
+      dispatch({ type: SET_SHOWTIME, payload: showTimes });
+    }
+  } catch (error) {
+    dispatch(setAlert(error.message, 'error', 5000));
+  }
+};
 export const addShowtime = showtime => async dispatch => {
   try {
     const token = localStorage.getItem('jwtToken');

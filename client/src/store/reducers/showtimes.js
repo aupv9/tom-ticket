@@ -3,14 +3,15 @@ import {
   TOGGLE_DIALOG,
   SELECT_SHOWTIMES,
   SELECT_ALL_SHOWTIMES,
-  DELETE_SHOWTIME, FILTER_SHOW,
+  DELETE_SHOWTIME, FILTER_SHOW, SET_SHOWTIME,
 } from '../types';
 
 const initialState = {
   showtimes: [],
   selectedShowtimes: [],
   selectedShowtime:{},
-  openDialog: false
+  openDialog: false,
+  showtime:{}
 };
 
 const getShowtimes = (state, payload) => ({
@@ -67,6 +68,10 @@ const filterShow = (state, payload) => ({
   showtimes:payload
 });
 
+const setShowTime = (state, payload) => ({
+  ...state,
+  showtime:payload
+});
 
 
 export default (state = initialState, action) => {
@@ -83,9 +88,10 @@ export default (state = initialState, action) => {
       return selectAllShowtimes(state);
     case DELETE_SHOWTIME:
       return deleteShowtime(state, payload);
-
     case FILTER_SHOW:
       return filterShow(state, payload);
+    case SET_SHOWTIME:
+      return setShowTime(state, payload);
     default:
       return state;
   }

@@ -5,7 +5,7 @@ import {
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  LOGOUT
+  LOGOUT, CHECK_LOGIN,
 } from '../types';
 import { setAlert } from './alert';
 import { setAuthHeaders, removeUser, isLoggedIn } from '../../utils';
@@ -154,18 +154,11 @@ export const register = ({
 export const loadUser = () => async dispatch => {
   if (!isLoggedIn()) return;
   try {
-    const url = '/users/me';
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: setAuthHeaders()
-    });
-    const responseData = await response.json();
-    if (response.ok) {
-      const { token } = responseData;
-      token && setToken(token);
-      dispatch({ type: USER_LOADED, payload: responseData });
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch({ type: CHECK_LOGIN});
     }
-    if (!response.ok) dispatch({ type: AUTH_ERROR });
+    if (token) dispatch({ type: AUTH_ERROR });
   } catch (error) {
     dispatch({ type: AUTH_ERROR });
   }
@@ -174,23 +167,23 @@ export const loadUser = () => async dispatch => {
 // Logout
 export const logout = () => async dispatch => {
   try {
-    const token = localStorage.getItem('jwtToken');
-    const url = '/users/logout';
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const responseData = await response.json();
-    if (response.ok) {
+    const token = localStorage.getItem('token');
+    // const url = '/users/logout';
+    // const response = await fetch(url, {
+    //   method: 'POST',
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     'Content-Type': 'application/json'
+    //   }
+    // });
+    // const responseData = await response.json();
+    if (token) {
       removeUser();
       dispatch({ type: LOGOUT });
       dispatch(setAlert('LOGOUT Success', 'success', 5000));
     }
-    if (responseData.error) {
-      dispatch(setAlert(responseData.error.message, 'error', 5000));
+    if (!token) {
+      dispatch(setAlert("", 'error', 5000));
     }
   } catch (error) {
     dispatch(setAlert(error.message, 'error', 5000));

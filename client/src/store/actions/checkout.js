@@ -8,7 +8,7 @@ import {
   SHOW_INVITATION_FORM,
   RESET_CHECKOUT,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE, SET_SEATS,
+  SET_QR_CODE, SET_SEATS, SHOW_CONCESSION, SET_SELECTED_FOOD,
 } from '../types';
 
 export const setSelectedSeats = seats => ({
@@ -51,6 +51,10 @@ export const setSeats = seat => ({
   payload: seat
 });
 
+
+
+
 export const toggleLoginPopup = () => ({ type: TOGGLE_LOGIN_POPUP });
 export const showInvitationForm = () => ({ type: SHOW_INVITATION_FORM });
 export const resetCheckout = () => ({ type: RESET_CHECKOUT });
+export const showConcessions = () => ({ type: SHOW_CONCESSION });

@@ -10,3 +10,8 @@ export const SET_QR_CODE = 'SET_QR_CODE';
 export const RESET_CHECKOUT = 'RESET_CHECKOUT';
 
 export const SET_SEATS = 'SET_SEATS';
+export const SHOW_CONCESSION = 'SHOW_CONCESSION';
+export const ADD_FOOD = 'ADD_FOOD';
+export const REMOVE_FOOD = 'REMOVE_FOOD';
+export const SET_SUB_TOTAL = 'SET_SUB_TOTAL';
+export const SET_FOOD_TOTAL = 'SET_FOOD_TOTAL';

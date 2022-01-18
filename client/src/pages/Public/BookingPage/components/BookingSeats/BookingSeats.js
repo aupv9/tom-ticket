@@ -46,7 +46,6 @@ const useStyles = makeStyles(theme => ({
 export default function BookingSeats(props) {
   const classes = useStyles(props);
   const { seats, onSelectSeat } = props;
-
   return (
     <Fragment>
       <Box width={1} pt={15}>
@@ -59,13 +58,7 @@ export default function BookingSeats(props) {
                   onClick={() => onSelectSeat(indexRow,index,seat)}
                   className={classes.seat}
                   bgcolor={
-                    seat["status"] === 'Available'
-                      ? 'rgb(96, 93, 169)'
-                      : 'rgb(120, 205, 4)'
-                      // ? 'rgb(120, 205, 4)'
-                      // : seat["status"] === 'Available'
-                      // ? 'rgb(14, 151, 218)'
-                      // : 'rgb(96, 93, 169)'
+                    seat["status"] === 'Available' ? 'rgb(96, 93, 169)' : seat["status"] === 'Unavailable' ? 'rgb(65, 66, 70)' : 'rgb(120, 205, 4)'
                   }>
                   {`${seat["tier"]} ${seat["numbers"]}`}
                 </Box>

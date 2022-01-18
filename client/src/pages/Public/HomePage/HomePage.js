@@ -67,8 +67,8 @@ class HomePage extends Component {
         />
         {false && (
           <Grid container style={{ height: 500 }}>
-            <Grid item xs={7} style={{ background: '#131334' }}></Grid>
-            <Grid item xs={5} style={{ background: '#010025' }}></Grid>
+            <Grid item xs={7} style={{ background: '#131334' }}/>
+            <Grid item xs={5} style={{ background: '#010025' }}/>
           </Grid>
         )}
       </Fragment>
