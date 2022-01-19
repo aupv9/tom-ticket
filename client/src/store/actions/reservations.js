@@ -1,4 +1,10 @@
-import { GET_RESERVATIONS, GET_RESERVATION_SUGGESTED_SEATS, GET_SHOWTIME, GET_SEATS_BY_SHOWTIME } from '../types';
+import {
+  GET_RESERVATIONS,
+  GET_RESERVATION_SUGGESTED_SEATS,
+  GET_SHOWTIME,
+  GET_SEATS_BY_SHOWTIME,
+  SET_ORDER_NON_PAYMENT, SET_IS_APPLY_PROMOTION,
+} from '../types';
 import { setAlert } from './alert';
 
 
@@ -66,24 +72,27 @@ export const getSuggestedReservationSeats = username => async dispatch => {
 
 export const addReservation = reservation => async dispatch => {
   try {
-    const token = localStorage.getItem('jwtToken');
-    const url = '/reservations';
+    const token = localStorage.getItem('token');
+    const url = host + '/ordersAnonymous';
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(reservation)
     });
     if (response.ok) {
-      const { reservation, QRCode } = await response.json();
+      const data = await response.json();
+      dispatch({ type: SET_ORDER_NON_PAYMENT, payload: data });
       dispatch(setAlert('Reservation Created', 'success', 5000));
       return {
         status: 'success',
         message: 'Reservation Created',
-        data: { reservation, QRCode }
+        data: { data }
       };
+    }else{
+      dispatch(setAlert('Reservation Failure', 'error', 5000));
     }
   } catch (error) {
     dispatch(setAlert(error.message, 'error', 5000));
@@ -139,6 +148,40 @@ export const removeReservation = id => async dispatch => {
     return {
       status: 'error',
       message: ' Reservation have not been deleted, try again.'
+    };
+  }
+};
+
+
+
+export const checkPromotionCode = (code,movie) => async dispatch => {
+  try {
+    const token = localStorage.getItem('token');
+    const url = host + `/checkCode?code=${code}&movie=${movie}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(setAlert('Apply Code Success', 'success', 5000));
+      dispatch({ type: SET_IS_APPLY_PROMOTION });
+      return { status: 'success',
+        message: 'Apply Code Success' ,
+        data:data
+      };
+    }else{
+      dispatch(setAlert('Promotion Code Invalid or Expire', 'error', 5000));
+    }
+  } catch (error) {
+    dispatch(setAlert("Promotion Code Invalid or Expire", 'error', 5000));
+    return {
+      status: 'error',
+      message: 'Promotion Code Invalid or Expire'
     };
   }
 };

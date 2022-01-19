@@ -27,7 +27,7 @@ import {
   getSeatsByShowTime,
   setSeats,
   showConcession,
-  showConcessions, setShowTime,
+  setShowConcessions, setShowTime, setReserved, setIsExpireOrder, checkPromotionCode, resetOnExpireOrder,
 } from '../../../store/actions';
 import { ResponsiveDialog } from '../../../components';
 import LoginForm from '../Login/components/LoginForm';
@@ -44,6 +44,8 @@ import { format } from 'date-fns'
 import BookingConcession from './components/BookingConcession/BookingConcession';
 import { addFood, getConcession, removeFood, setSubTotal } from '../../../store/actions/concession';
 import { setFoodTotal } from '../../../store/reducers/concession';
+import MakePayment from './components/Payment/MakePayment';
+import { setPayment } from '../../../store/reducers/checkout';
 
 
 class BookingPage extends Component {
@@ -168,7 +170,7 @@ class BookingPage extends Component {
       toggleLoginPopup,
       showInvitationForm,
       setQRCode,
-      showConcessions
+      setShowConcessions
     } = this.props;
     if (selectedSeats.length === 0) return;
     if (!isAuth) return toggleLoginPopup();
@@ -188,7 +190,7 @@ class BookingPage extends Component {
     //   const { data } = response;
     //   setQRCode(data.QRCode);
     //   getReservations();
-     showConcessions();
+     setShowConcessions();
      // showInvitationForm();
     // }
   }
@@ -400,6 +402,7 @@ class BookingPage extends Component {
 
   render() {
     const {
+      addReservation,
       classes,
       user,
       movie,
@@ -420,14 +423,24 @@ class BookingPage extends Component {
       cinemas,
       seats,
       showConcession,
-      showConcessions,
+      setShowConcessions,
       concessions,
       selectedFood,
       addFood,
       removeFood,
       setSubTotal,
       subTotal,
-      showtime
+      showtime,
+      isReserved,
+      isPayment,
+      setPayment,
+      setReserved,
+      isExpireOrder,
+      setIsExpireOrder,
+      orderNow,
+      checkPromotionCode,
+      isApplyPromotionCode,
+      resetOnExpireOrder
     } = this.props;
     const {uniqueTimes} =  this.onFilterTimes();
     // let seats = this.onGetReservedSeats();
@@ -440,84 +453,112 @@ class BookingPage extends Component {
     // }
 
     return (
-      <Container maxWidth="xl" className={classes.container}>
-        <Grid container spacing={2} style={{ height: '100%' }}>
-          <MovieInfo movie={movie} />
-          <Grid item lg={9} xs={12} md={12}>
-            {
-              !showConcession &&
-              <BookingForm
-                cinemas={cinemas}
-                times={uniqueTimes}
-                showtimes={showtimes}
-                selectedCinema={selectedCinema}
-                selectedDate={selectedDate}
-                selectedTime={selectedTime}
-                onChangeCinema={this.onChangeCinema}
-                onChangeDate={this.onChangeDate}
-                onChangeTime={this.onChangeTime}
-              />
-            }
-
-            {/*{showInvitation && !!selectedSeats.length && (*/}
-            {/*  <BookingInvitation*/}
-            {/*    selectedSeats={selectedSeats}*/}
-            {/*    sendInvitations={this.sendInvitations}*/}
-            {/*    ignore={resetCheckout}*/}
-            {/*    invitations={invitations}*/}
-            {/*    onSetInvitation={setInvitation}*/}
-            {/*    onDownloadPDF={this.jsPdfGenerator}*/}
-            {/*  />*/}
-            {/*)}*/}
-
-            {
-              showConcession && !!selectedSeats.length && (
-                <BookingConcession
-                  selectedSeats={selectedSeats}
-                  concessions={concessions}
-                  selectedFood={selectedFood}
-                  addFood={(item) => addFood(item)}
-                  removeFood={(item) => removeFood(item)}
-                  setSubTotal={(subTotal) => setSubTotal(subTotal)}
-                  subTotal={subTotal}
-                  showtime={showtime}
+      <>
+        <Container maxWidth="xl" className={classes.container}>
+          <Grid container spacing={2} style={{ height: '100%' }}>
+           <MovieInfo movie={movie} />
+            <Grid item lg={9} xs={12} md={12}>
+              {
+                !showConcession && !isReserved &&
+                <BookingForm
+                  cinemas={cinemas}
+                  times={uniqueTimes}
+                  showtimes={showtimes}
+                  selectedCinema={selectedCinema}
+                  selectedDate={selectedDate}
+                  selectedTime={selectedTime}
+                  onChangeCinema={this.onChangeCinema}
+                  onChangeDate={this.onChangeDate}
+                  onChangeTime={this.onChangeTime}
                 />
-              )
-            }
+              }
 
-            {selectedCinema && selectedTime && !showConcession && seats &&(
-              <>
-                <BookingSeats
-                  seats={seats}
-                  onSelectSeat={(indexRow,index, seat) =>
-                    this.onSelectSeat(indexRow, index,seat)
-                  }
-                />
-                {
-                  selectedSeats &&
-                  <BookingCheckout
+              {/*{showInvitation && !!selectedSeats.length && (*/}
+              {/*  <BookingInvitation*/}
+              {/*    selectedSeats={selectedSeats}*/}
+              {/*    sendInvitations={this.sendInvitations}*/}
+              {/*    ignore={resetCheckout}*/}
+              {/*    invitations={invitations}*/}
+              {/*    onSetInvitation={setInvitation}*/}
+              {/*    onDownloadPDF={this.jsPdfGenerator}*/}
+              {/*  />*/}
+              {/*)}*/}
+
+              {
+                showConcession && !isReserved &&(
+                  <BookingConcession
                     user={user}
-                    // ticketPrice={cinema.ticketPrice}
-                    // seatsAvailable={cinema.seatsAvailable}
                     selectedSeats={selectedSeats}
-                    onBookSeats={() => this.checkout()}
+                    concessions={concessions}
+                    selectedFood={selectedFood}
+                    addFood={(item) => addFood(item)}
+                    removeFood={(item) => removeFood(item)}
+                    setSubTotal={(subTotal) => setSubTotal(subTotal)}
                     subTotal={subTotal}
-                    setSubTotal={setSubTotal}
+                    showtime={showtime}
+                    setShowConcessions={setShowConcessions}
+                    showConcession={showConcession}
+                    addReservation={addReservation}
+                    setPayment={setPayment}
+                    setReserved={setReserved}
+                    isReserved={isReserved}
+                    isPayment={isPayment}
+                    setIsExpireOrder={setIsExpireOrder}
                   />
-                }
+                )
+              }
+              {
+                !!isReserved && !!isExpireOrder && <MakePayment
+                                                              selectedSeats={selectedSeats}
+                                                              selectedFood={selectedFood}
+                                                              setIsExpireOrder={setIsExpireOrder}
+                                                              showConcession={showConcession}
+                                                              setShowConcessions={setShowConcessions}
+                                                              showtime={showtime}
+                                                              orderNow={orderNow}
+                                                              checkPromotionCode={checkPromotionCode}
+                                                              isApplyPromotionCode={isApplyPromotionCode}
+                                                              setSubTotal={setSubTotal}
+                                                              subTotal={subTotal}
+                                                              setReserved={setReserved}
+                                                              resetOnExpireOrder={resetOnExpireOrder}
+                />
+              }
 
-              </>
-            )}
+              {selectedCinema && selectedTime && !showConcession && seats && !isReserved && (
+                <>
+                  <BookingSeats
+                    seats={seats}
+                    onSelectSeat={(indexRow,index, seat) =>
+                      this.onSelectSeat(indexRow, index,seat)
+                    }
+                  />
+                  {
+                    selectedSeats &&
+                    <BookingCheckout
+                      user={user}
+                      // ticketPrice={cinema.ticketPrice}
+                      // seatsAvailable={cinema.seatsAvailable}
+                      selectedSeats={selectedSeats}
+                      onBookSeats={() => this.checkout()}
+                      subTotal={subTotal}
+                      setSubTotal={setSubTotal}
+                    />
+                  }
+                </>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
-        <ResponsiveDialog
-          id="Edit-cinema"
-          open={showLoginPopup}
-          handleClose={() => toggleLoginPopup()}
-          maxWidth="sm">
-          <LoginForm />
-        </ResponsiveDialog>
-      </Container>
+          <ResponsiveDialog
+            id="Edit-cinema"
+            open={!!showLoginPopup && !user}
+            handleClose={() => toggleLoginPopup()}
+            maxWidth="sm">
+            <LoginForm />
+          </ResponsiveDialog>
+        </Container>
+      </>
+
     );
   }
 }
@@ -545,7 +586,7 @@ const mapStateToProps = (
   movie: movieState.selectedMovie,
   cinema: cinemaState.selectedCinema,
   cinemas: cinemaState.cinemas,
-  showtimes: showtimeState.showtimes,
+  showtimes: showtimeState.showtimes.filter(value => value.status !== "Expire"),
   reservations: reservationState.reservations,
   selectedSeats: checkoutState.selectedSeats,
   suggestedSeat: checkoutState.suggestedSeat,
@@ -564,7 +605,12 @@ const mapStateToProps = (
   selectedFood:food.selectedFood,
   subTotal:food.subTotal,
   showtime:showtimeState.showtime,
-  foodTotal:food.foodTotal
+  foodTotal:food.foodTotal,
+  isReserved:checkoutState.isReserved,
+  isPayment:checkoutState.isPayment,
+  isExpireOrder:checkoutState.isExpireOrder,
+  orderNow:reservationState.orderNow,
+  isApplyPromotionCode:reservationState.isApplyPromotionCode
 });
 
 const mapDispatchToProps = {
@@ -591,13 +637,18 @@ const mapDispatchToProps = {
   getShowTimesFilter,
   getSeatsByShowTime,
   setSeats,
-  showConcessions,
+  setShowConcessions,
   getConcession,
   addFood,
   removeFood,
   setSubTotal,
   setShowTime,
-  setFoodTotal
+  setFoodTotal,
+  setPayment,
+  setReserved,
+  setIsExpireOrder,
+  checkPromotionCode,
+  resetOnExpireOrder
 };
 
 export default connect(

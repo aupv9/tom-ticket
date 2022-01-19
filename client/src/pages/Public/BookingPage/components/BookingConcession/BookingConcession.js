@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import {
-  Typography, CardActions, Container, Chip,
+  Typography, CardActions, Container, Chip, Grid,
 } from '@material-ui/core';
 import { Paper } from '../../../../../components';
 import Card from '@material-ui/core/Card';
@@ -12,10 +12,11 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import BookingEnd from '../BookingEnd/BookingEnd';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import { setIsExpireOrder, setShowConcessions } from '../../../../../store/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(3)
+    margin: theme.spacing(1)
   },
   paper: { padding: theme.spacing(4) },
   gridContainer: {
@@ -39,7 +40,7 @@ export default function BookingConcession(props) {
   const classes = useStyles();
   const {
     selectedSeats,
-    sendInvitations,
+    user,
     ignore,
     invitations,
     concessions,
@@ -48,7 +49,15 @@ export default function BookingConcession(props) {
     removeFood,
     setSubTotal,
     subTotal,
-    showtime
+    showtime,
+    setShowConcessions,
+    showConcession,
+    addReservation,
+    setPayment,
+    setReserved,
+    isReserved,
+    isPayment,
+    setIsExpireOrder
   } = props;
 
   const calTotalFood = () =>{
@@ -60,7 +69,6 @@ export default function BookingConcession(props) {
   }
 
   useEffect(() =>{
-    console.log(calTotalSeats() + calTotalFood())
     setSubTotal(calTotalSeats() + calTotalFood());
   },[selectedFood])
 
@@ -94,48 +102,62 @@ export default function BookingConcession(props) {
         {/*  to send invitations to your friends!*/}
         {/*</Typography>*/}
         <Container>
-          {
-            concessions && concessions.length > 0 &&
-            concessions.map((item,index) => (
-              <Card className={classes.root} key={index}>
-                <CardActionArea>
-                  <CardMedia
-                    className={classes.media}
-                    image={item.thumbnail}
-                    title="Contemplative Reptile"
-                  />
-                  <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {
-                        item.name
-                      }
-                    </Typography>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {
-                        item.price
-                      } vnd
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-                <CardActions>
-                  <IconButton
-                    onClick={() => onAddFood(item)}
-                    children={<AddCircleIcon />}
-                  />
-                  <Chip label={calQuantityFood(item).toString() || "0"} variant="outlined" />
-                  <IconButton
-                    onClick={() => onRemoveFood(item)}
-                    children={<RemoveCircleIcon />}
-                  />
-                </CardActions>
-              </Card>
-            ))
-          }
+          <Grid container>
+            {
+              concessions && concessions.length > 0 &&
+              concessions.map((item,index) => (
+                <Grid md={6} key={index} item>
+                  <Card className={classes.root} >
+                    <CardActionArea>
+                      <CardMedia
+                        className={classes.media}
+                        image={item.thumbnail}
+                        title="Contemplative Reptile"
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {
+                            item.name
+                          }
+                        </Typography>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {
+                            new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'VND' }).format(item.price)
+                          }
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                    <CardActions>
+                      <IconButton
+                        onClick={() => onAddFood(item)}
+                        children={<AddCircleIcon />}
+                      />
+                      <Chip label={calQuantityFood(item).toString() || "0"} variant="outlined" />
+                      <IconButton
+                        onClick={() => onRemoveFood(item)}
+                        children={<RemoveCircleIcon />}
+                      />
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))
+            }
+          </Grid>
         </Container>
-        <BookingEnd selectedSeats={selectedSeats}
+        <BookingEnd
+                    user={user}
+                    showConcession={showConcession}
+                    setShowConcessions={setShowConcessions}
+                    selectedSeats={selectedSeats}
                     selectedFood={selectedFood}
                     subTotal={subTotal}
-                    showtime={showtime}/>
+                    showtime={showtime}
+                    addReservation={addReservation}
+                    setReserved={setReserved}
+                    isReserved={isReserved}
+                    setIsExpireOrder={setIsExpireOrder}
+
+        />
       </Paper>
     </div>
   );

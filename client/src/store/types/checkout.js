@@ -10,8 +10,12 @@ export const SET_QR_CODE = 'SET_QR_CODE';
 export const RESET_CHECKOUT = 'RESET_CHECKOUT';
 
 export const SET_SEATS = 'SET_SEATS';
-export const SHOW_CONCESSION = 'SHOW_CONCESSION';
+export const SET_SHOW_CONCESSION = 'SET_SHOW_CONCESSION';
 export const ADD_FOOD = 'ADD_FOOD';
 export const REMOVE_FOOD = 'REMOVE_FOOD';
 export const SET_SUB_TOTAL = 'SET_SUB_TOTAL';
 export const SET_FOOD_TOTAL = 'SET_FOOD_TOTAL';
+export const SET_IS_RESERVED = 'SET_IS_RESERVED';
+export const SET_IS_PAYMENT = 'SET_IS_PAYMENT';
+export const SET_IS_EXPIRE_ORDER = 'SET_IS_EXPIRE_ORDER';
+export const RESET_ORDER_EXPIRE = 'RESET_ORDER_EXPIRE';

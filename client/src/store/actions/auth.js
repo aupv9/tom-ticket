@@ -5,7 +5,7 @@ import {
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  LOGOUT, CHECK_LOGIN,
+  LOGOUT, CHECK_LOGIN, TOGGLE_LOGIN_POPUP,
 } from '../types';
 import { setAlert } from './alert';
 import { setAuthHeaders, removeUser, isLoggedIn } from '../../utils';
@@ -47,6 +47,7 @@ export const login = (username, password) => async dispatch => {
       const { token,fullName } = responseData;
       token && setToken(token);
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
+      dispatch({ type: TOGGLE_LOGIN_POPUP });
       dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
     if (responseData.error) {

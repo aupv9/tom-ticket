@@ -8,7 +8,14 @@ import {
   RESET_CHECKOUT,
   SET_INVITATION,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE, SET_SEATS, SHOW_CONCESSION, SET_SELECTED_FOOD,
+  SET_QR_CODE,
+  SET_SEATS,
+  SHOW_CONCESSION,
+  SET_SELECTED_FOOD,
+  SET_SHOW_CONCESSION,
+  SET_IS_RESERVED,
+  SET_IS_PAYMENT,
+  SET_IS_EXPIRE_ORDER, RESET_ORDER_EXPIRE,
 } from '../types';
 
 const initialState = {
@@ -22,6 +29,9 @@ const initialState = {
   invitations: {},
   QRCode: '',
   showConcession:false,
+  isReserved:false,
+  isPayment:false,
+  isExpireOrder:false
 };
 
 const setSelectedSeats = (state, seats) => {
@@ -91,7 +101,7 @@ const showInvitationForm = state => ({
   showInvitation: !state.showInvitation
 });
 
-const showedConcession = state => ({
+const setShowedConcession = state => ({
   ...state,
   showConcession: !state.showConcession
 });
@@ -104,11 +114,30 @@ const setSeats = (state, seats) => {
   }
 };
 
+export const setPayment = (state) => ({
+    ...state,
+    isPayment:!state.isPayment
+});
+
+
+export const setExpireOrder = (state) => {
+  return {
+    ...state,
+    isExpireOrder:!state.isExpireOrder
+  }
+};
+
+export const setReserved = (state) => ({
+    ...state,
+    isReserved:!state.isReserved
+});
 
 
 
 const resetCheckout = () => initialState;
 
+
+const resetOrderExpire = () => initialState;
 
 export default function(state = initialState, action) {
   const { type, payload } = action;
@@ -135,9 +164,16 @@ export default function(state = initialState, action) {
       return resetCheckout();
     case SET_SEATS:
       return setSeats(state,payload);
-    case SHOW_CONCESSION:
-      return showedConcession(state);
-
+    case SET_SHOW_CONCESSION:
+      return setShowedConcession(state);
+    case SET_IS_RESERVED:
+      return setReserved(state);
+    case SET_IS_PAYMENT:
+      return setPayment(state);
+    case SET_IS_EXPIRE_ORDER:
+      return setExpireOrder(state);
+    case RESET_ORDER_EXPIRE:
+      return resetOrderExpire(state);
     default:
       return state;
   }

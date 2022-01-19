@@ -37,12 +37,16 @@ export const setFoodTotal = (state,foodTotal) => {
 
 export const removeFood = (state,food) => {
   const newFoods = [...state.selectedFood];
-  newFoods.splice(state.selectedFood.findIndex(item => item.id === food.id),1);
+  const indexFood = state.selectedFood.findIndex(item => item.id === food.id);
+  if(indexFood !== -1){
+    newFoods.splice(indexFood,1);
+  }
   return {
     ...state,
     selectedFood:newFoods
   }
 };
+
 
 
 export default (state = initialState, action) => {

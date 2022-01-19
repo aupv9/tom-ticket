@@ -8,7 +8,14 @@ import {
   SHOW_INVITATION_FORM,
   RESET_CHECKOUT,
   SET_SUGGESTED_SEATS,
-  SET_QR_CODE, SET_SEATS, SHOW_CONCESSION, SET_SELECTED_FOOD,
+  SET_QR_CODE,
+  SET_SEATS,
+  SHOW_CONCESSION,
+  SET_SELECTED_FOOD,
+  SET_SHOW_CONCESSION,
+  SET_IS_RESERVED,
+  SET_IS_EXPIRE_ORDER,
+  RESET_ORDER_EXPIRE,
 } from '../types';
 
 export const setSelectedSeats = seats => ({
@@ -57,4 +64,7 @@ export const setSeats = seat => ({
 export const toggleLoginPopup = () => ({ type: TOGGLE_LOGIN_POPUP });
 export const showInvitationForm = () => ({ type: SHOW_INVITATION_FORM });
 export const resetCheckout = () => ({ type: RESET_CHECKOUT });
-export const showConcessions = () => ({ type: SHOW_CONCESSION });
+export const setShowConcessions = () => ({ type: SET_SHOW_CONCESSION });
+export const setReserved = () => ({ type: SET_IS_RESERVED });
+export const setIsExpireOrder = () => ({ type: SET_IS_EXPIRE_ORDER });
+export const resetOnExpireOrder = () => ({ type: RESET_ORDER_EXPIRE });
