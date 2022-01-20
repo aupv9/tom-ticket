@@ -20,6 +20,9 @@ import Timer from '../Timer/Timer';
 import { getMinutes, subMinutes } from 'date-fns';
 import FooterPayment from '../FooterPayment/FooterPayment';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import SockJsClient from "react-stomp";
+import { useHistory } from 'react-router-dom';
+import { resetSelectedFood } from '../../../../../store/actions/concession';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -124,9 +127,15 @@ export default function MakePayment(props) {
     subTotal,
     setReserved,
     setIsExpireOrder,
-    resetOnExpireOrder
+    resetOnExpireOrder,
+    paymentMethods,
+    handleVNPAY,
+    createPayment,
+    showMessagePaymentSuccess,
+    resetSelectedFood
   } = props;
   const [promoCode, setPromoCode] = useState("");
+  const history = useHistory();
 
   useEffect(() =>{
 
@@ -167,120 +176,183 @@ export default function MakePayment(props) {
   const onExpireOrder = () =>{
     resetOnExpireOrder();
   };
-  const [value, setValue] = React.useState('female');
+  const [method, setMethod] = React.useState(1);
 
   const handleChange = (event) => {
-    setValue(event.target.value);
+    setMethod(parseInt(event.target.value));
   };
+
+  const handlePayment = async () => {
+    switch (method) {
+      case 2:
+        break;
+      default:
+         await handlePaymentWithVNPAY();
+        break;
+    }
+  }
+
+  const handlePaymentWithVNPAY =  async () =>{
+    if(subTotal){
+      const response = await handleVNPAY({
+        amount:subTotal,
+        bankcode:"NCB",
+        cbo_inv_type:"I",
+        ordertype:"paymentbill",
+        vnp_OrderInfo:orderNow.id.toString() + "-"+ promoCode || "",
+        language:"vn",
+      });
+      if(response && response["status"] === "Success" && response["data"]){
+        window.open(response.data);
+      }
+    }
+
+  }
+  let onConnected = () => {
+    console.log("Connected!!")
+  }
+
+  let onMessageReceived = (msg) => {
+    if(msg && msg.payload && msg.domain === "payment"){
+      if(msg.payload[0].status === "Success"){
+        showMessagePaymentSuccess();
+        resetOnExpireOrder();
+        resetSelectedFood();
+        createPayment({
+          amount:subTotal,
+          paymentMethodId:method,
+          transactionId:msg.payload[0]["transactionNo"],
+          partId:orderNow.id,
+          userId:orderNow.userId,
+          code:promoCode
+        });
+        history.push("/profile");
+      }
+
+    }
+  }
+
   return (
-    <div className={classes.root}>
-      <Paper className={classes.paper}>
-        <Typography variant="h4" align="center">
-          Payment
-        </Typography>
-        <Container>
-          <Grid container>
-            {/*<Grid item md={12}>*/}
-            {/*  <Timer initialMinute={5} initialSeconds={0}/>*/}
-            {/*</Grid>*/}
-            <Grid item md={9}>
-              {
-                !isApplyPromotionCode &&
-                <Accordion disabled={isApplyPromotionCode}  >
+    <>
+      <SockJsClient
+        url={'http://localhost:8080/real-time-service/'}
+        topics={['/topic/notification-payment']}
+        onConnect={onConnected}
+        onDisconnect={console.log("Disconnected!")}
+        onMessage={msg => onMessageReceived(msg)}
+        debug={false}
+      />
+      <div className={classes.root}>
+
+        <Paper className={classes.paper}>
+          <Typography variant="h4" align="center">
+            Payment
+          </Typography>
+          <Container>
+            <Grid container>
+              {/*<Grid item md={12}>*/}
+              {/*  <Timer initialMinute={5} initialSeconds={0}/>*/}
+              {/*</Grid>*/}
+              <Grid item md={9}>
+                {
+                  !isApplyPromotionCode &&
+                  <Accordion disabled={isApplyPromotionCode}  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography className={classes.heading}>Apply Promotion</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <form className={classes.form}>
+                        <Typography>
+                          Usage Promotion Code
+                        </Typography>
+                        <div className={classes.fields}>
+                          <TextField
+                            className={classes.textField}
+                            label="Promotion Code"
+                            name="code"
+                            onChange={event => handleFieldChange(event)}
+                            type="text"
+                            value={promoCode}
+                            variant="outlined"
+                          />
+                        </div>
+                        <Button
+                          className={classes.loginButton}
+                          color="primary"
+                          onClick={() => onCheckCode()}
+                          size="large"
+                          variant="contained">
+                          Apply
+                        </Button>
+                      </form>
+                    </AccordionDetails>
+                  </Accordion>
+                }
+                <Accordion defaultExpanded>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
                   >
-                    <Typography className={classes.heading}>Apply Promotion</Typography>
+                    <Typography className={classes.heading}>Select Payment</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <form className={classes.form}>
-                      <Typography>
-                        Usage Promotion Code
-                      </Typography>
-                      <div className={classes.fields}>
-                        <TextField
-                          className={classes.textField}
-                          label="Promotion Code"
-                          name="code"
-                          onChange={event => handleFieldChange(event)}
-                          type="text"
-                          value={promoCode}
-                          variant="outlined"
-                        />
-                      </div>
-                      <Button
-                        className={classes.loginButton}
-                        color="primary"
-                        onClick={() => onCheckCode()}
-                        size="large"
-                        variant="contained">
-                        Apply
-                      </Button>
-                    </form>
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Payment Method</FormLabel>
+                      <RadioGroup aria-label="Payment Method" name="Payment Method" value={method} onChange={handleChange}>
+                        {
+                          paymentMethods && paymentMethods.length > 0 && paymentMethods.filter(item => item.name !== "Cash").map((item,index) => (
+                            <FormControlLabel key={index} value={item.id} control={<Radio />} label={item.name} />
+                          ))
+                        }
+                      </RadioGroup>
+                    </FormControl>
                   </AccordionDetails>
                 </Accordion>
-              }
-              <Accordion defaultExpanded>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel2a-content"
-                  id="panel2a-header"
-                >
-                  <Typography className={classes.heading}>Select Payment</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <FormControl component="fieldset">
-                    <FormLabel component="legend">Gender</FormLabel>
-                    <RadioGroup aria-label="gender" name="gender1" value={value} onChange={handleChange}>
-                      {
-
-                      }
-                      <FormControlLabel value="female" control={<Radio />} label="Female" />
-
-                    </RadioGroup>
-                  </FormControl>
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-            <Grid item md={3}>
-              <Grid container>
-                <Grid item md={12}>
-                  <Container>
-                    <Typography>
-                      Countdown Time
-                    </Typography>
-                    <CountdownCircleTimer
-                      isPlaying
-                      duration={300}
-                      colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-                      colorsTime={[10, 6, 3, 0]}
-                      onComplete={() => onExpireOrder()}
-                    >
-                      {renderTime}
-                    </CountdownCircleTimer>
-                  </Container>
-
+              </Grid>
+              <Grid item md={3}>
+                <Grid container>
+                  <Grid item md={12}>
+                    <Container>
+                      <Typography>
+                        Countdown Time
+                      </Typography>
+                      <CountdownCircleTimer
+                        isPlaying
+                        duration={300}
+                        colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
+                        colorsTime={[10, 6, 3, 0]}
+                        onComplete={() => onExpireOrder()}
+                      >
+                        {renderTime}
+                      </CountdownCircleTimer>
+                    </Container>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </Container>
-        <FooterPayment
-                      user={user}
-                      showConcession={showConcession}
-                      setShowConcessions={setShowConcessions}
-                      selectedSeats={selectedSeats}
-                      selectedFood={selectedFood}
-                      subTotal={subTotal}
-                      showtime={showtime}
-                      addReservation={addReservation}
-                      setReserved={setReserved}
-                      setIsExpireOrder={setIsExpireOrder}
-                      orderNow={orderNow}
-        />
-      </Paper>
-    </div>
+          </Container>
+          <FooterPayment
+            user={user}
+            showConcession={showConcession}
+            setShowConcessions={setShowConcessions}
+            selectedSeats={selectedSeats}
+            selectedFood={selectedFood}
+            subTotal={subTotal}
+            showtime={showtime}
+            addReservation={addReservation}
+            setReserved={setReserved}
+            setIsExpireOrder={setIsExpireOrder}
+            orderNow={orderNow}
+            handlePayment={handlePayment}
+          />
+        </Paper>
+      </div>
+
+    </>
   );
 }

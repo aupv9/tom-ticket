@@ -10,6 +10,7 @@ import {
 import MovieCarousel from '../components/MovieCarousel/MovieCarousel';
 import MovieBanner from '../components/MovieBanner/MovieBanner';
 import styles from './styles';
+import Newsletter from '../Newsletter/Newsletter';
 
 class HomePage extends Component {
   componentDidMount() {
@@ -71,6 +72,7 @@ class HomePage extends Component {
             <Grid item xs={5} style={{ background: '#010025' }}/>
           </Grid>
         )}
+        <Newsletter />
       </Fragment>
     );
   }

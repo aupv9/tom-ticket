@@ -59,6 +59,7 @@ export default function BookingConcession(props) {
     isPayment,
     setIsExpireOrder
   } = props;
+  console.log(selectedFood)
 
   const calTotalFood = () =>{
     return selectedFood && selectedFood.length > 0 && selectedFood.reduce((prev,cur) => prev + cur.price,0)
@@ -69,7 +70,9 @@ export default function BookingConcession(props) {
   }
 
   useEffect(() =>{
-    setSubTotal(calTotalSeats() + calTotalFood());
+    if(selectedFood){
+      setSubTotal(calTotalSeats() + calTotalFood());
+    }
   },[selectedFood])
 
   const onAddFood = (item) =>{
@@ -80,7 +83,7 @@ export default function BookingConcession(props) {
   }
 
   const calQuantityFood = (food) =>{
-     return selectedFood
+    return selectedFood
        .filter(item => item.id === food.id)
        .reduce((prev,cur) => {
          prev += 1;

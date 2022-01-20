@@ -42,7 +42,14 @@ import jsPDF from 'jspdf';
 
 import { format } from 'date-fns'
 import BookingConcession from './components/BookingConcession/BookingConcession';
-import { addFood, getConcession, removeFood, setSubTotal } from '../../../store/actions/concession';
+import {
+  addFood, createPayment,
+  getConcession,
+  getPaymentMethods,
+  handleVNPAY,
+  removeFood, resetSelectedFood,
+  setSubTotal, showMessagePaymentSuccess,
+} from '../../../store/actions/concession';
 import { setFoodTotal } from '../../../store/reducers/concession';
 import MakePayment from './components/Payment/MakePayment';
 import { setPayment } from '../../../store/reducers/checkout';
@@ -63,13 +70,15 @@ class BookingPage extends Component {
         getReservations,
         getSuggestedReservationSeats,
         getCinemasByMovie,
-        getConcession
+        getConcession,
+        getPaymentMethods
       } = this.props;
       if(match.params.id){
         getMovie(match.params.id);
         getCinemasByMovie(match.params.id);
       }
       getConcession();
+      getPaymentMethods();
   }
 
   // componentDidMount() {
@@ -440,7 +449,12 @@ class BookingPage extends Component {
       orderNow,
       checkPromotionCode,
       isApplyPromotionCode,
-      resetOnExpireOrder
+      resetOnExpireOrder,
+      paymentMethods,
+      handleVNPAY,
+      createPayment,
+      showMessagePaymentSuccess,
+      resetSelectedFood
     } = this.props;
     const {uniqueTimes} =  this.onFilterTimes();
     // let seats = this.onGetReservedSeats();
@@ -509,6 +523,7 @@ class BookingPage extends Component {
               }
               {
                 !!isReserved && !!isExpireOrder && <MakePayment
+                                                              createPayment={createPayment}
                                                               selectedSeats={selectedSeats}
                                                               selectedFood={selectedFood}
                                                               setIsExpireOrder={setIsExpireOrder}
@@ -522,6 +537,10 @@ class BookingPage extends Component {
                                                               subTotal={subTotal}
                                                               setReserved={setReserved}
                                                               resetOnExpireOrder={resetOnExpireOrder}
+                                                              paymentMethods={paymentMethods}
+                                                              handleVNPAY={handleVNPAY}
+                                                              showMessagePaymentSuccess={showMessagePaymentSuccess}
+                                                              resetSelectedFood={resetSelectedFood}
                 />
               }
 
@@ -610,7 +629,8 @@ const mapStateToProps = (
   isPayment:checkoutState.isPayment,
   isExpireOrder:checkoutState.isExpireOrder,
   orderNow:reservationState.orderNow,
-  isApplyPromotionCode:reservationState.isApplyPromotionCode
+  isApplyPromotionCode:reservationState.isApplyPromotionCode,
+  paymentMethods:food.paymentMethods
 });
 
 const mapDispatchToProps = {
@@ -648,7 +668,12 @@ const mapDispatchToProps = {
   setReserved,
   setIsExpireOrder,
   checkPromotionCode,
-  resetOnExpireOrder
+  resetOnExpireOrder,
+  getPaymentMethods,
+  handleVNPAY,
+  showMessagePaymentSuccess,
+  createPayment,
+  resetSelectedFood
 };
 
 export default connect(

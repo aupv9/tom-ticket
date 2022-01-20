@@ -16,15 +16,16 @@ import styles from './styles';
 
 class Account extends Component {
   state = {
-    name: '',
+    fisrtName: '',
+    lastName:'',
     email: '',
-    phone: '',
     password: ''
   };
 
   componentDidMount() {
-    const { name, email, phone } = this.props.user;
-    this.setState({ name, email, phone });
+    const { fullName, email, } = this.props.user;
+    console.log(this.props.user)
+    this.setState({ fullName, email });
   }
 
   handleFieldChange = (field, value) => {
@@ -59,7 +60,7 @@ class Account extends Component {
 
   render() {
     const { classes, className } = this.props;
-    const { name, phone, email, password } = this.state;
+    const { fullName, phone, email, password } = this.state;
 
     const rootClassName = classNames(classes.root, className);
 
@@ -80,7 +81,7 @@ class Account extends Component {
                 label="FUll Name"
                 margin="dense"
                 required
-                value={name}
+                value={fullName}
                 variant="outlined"
                 onChange={event =>
                   this.handleFieldChange('name', event.target.value)
@@ -99,17 +100,6 @@ class Account extends Component {
               />
             </div>
             <div className={classes.field}>
-              <TextField
-                className={classes.textField}
-                label="Phone Number"
-                margin="dense"
-                type="number"
-                value={phone}
-                variant="outlined"
-                onChange={event =>
-                  this.handleFieldChange('phone', event.target.value)
-                }
-              />
               <TextField
                 className={classes.textField}
                 label="Password"

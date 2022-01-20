@@ -3,7 +3,7 @@ import {
   GET_RESERVATION_SUGGESTED_SEATS,
   GET_SHOWTIME,
   GET_SEATS_BY_SHOWTIME,
-  SET_ORDER_NON_PAYMENT, SET_IS_APPLY_PROMOTION,
+  SET_ORDER_NON_PAYMENT, SET_IS_APPLY_PROMOTION, SET_HISTORY_ORDER, SUB_NEWSLETTER,
 } from '../types';
 import { setAlert } from './alert';
 
@@ -185,3 +185,55 @@ export const checkPromotionCode = (code,movie) => async dispatch => {
     };
   }
 };
+
+
+export const getOrderHistory = (user) => async dispatch => {
+  try {
+    const token = localStorage.getItem('token');
+    const url = host + `/orders-user?user_id=${user}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      // dispatch(setAlert('Apply Code Success', 'success', 5000));
+      dispatch({ type: SET_HISTORY_ORDER,payload:data.content});
+    }
+  } catch (error) {
+    // dispatch(setAlert("Promotion Code Invalid or Expire", 'error', 5000));
+    return {
+      status: 'error',
+      message: 'Promotion Code Invalid or Expire'
+    };
+  }
+};
+
+
+export const subNewsletter = (email) => async dispatch => {
+  try {
+    const url = host + `/newsletter`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify({email})
+    });
+    if (response.ok) {
+      dispatch(setAlert('Subscribe Succession', 'success', 3000));
+    }
+  } catch (error) {
+    // dispatch(setAlert("Promotion Code Invalid or Expire", 'error', 5000));
+    return {
+      status: 'error',
+      message: 'Subscribe Failure'
+    };
+  }
+};
+
+// export const subNewsletter = (email) => ({ type: SUB_NEWSLETTER,payload:email });
+

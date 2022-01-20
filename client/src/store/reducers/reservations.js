@@ -2,13 +2,14 @@ import {
   GET_RESERVATIONS,
   GET_RESERVATION_SUGGESTED_SEATS,
   GET_SEATS_BY_SHOWTIME,
-  SET_ORDER_NON_PAYMENT, SET_IS_APPLY_PROMOTION,
+  SET_ORDER_NON_PAYMENT, SET_IS_APPLY_PROMOTION, SET_HISTORY_ORDER,
 } from '../types';
 
 const initialState = {
   reservations: [],
   orderNow:{},
-  isApplyPromotionCode:false
+  isApplyPromotionCode:false,
+  orderHistory:[]
 };
 
 const getReservations = (state, payload) => ({
@@ -38,6 +39,14 @@ const setApplyPromotionCode = (state) => {
   }
 };
 
+const setOrderHistory = (state,payload) => {
+  return {
+    ...state,
+    orderHistory: payload
+  }
+};
+
+
 export default (state = initialState, action) => {
   const { type, payload } = action;
 
@@ -52,6 +61,8 @@ export default (state = initialState, action) => {
       return setOrderNonPayment(state, payload);
     case SET_IS_APPLY_PROMOTION:
       return setApplyPromotionCode(state);
+    case SET_HISTORY_ORDER:
+      return setOrderHistory(state,payload);
     default:
       return state;
   }

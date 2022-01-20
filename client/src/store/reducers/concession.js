@@ -1,10 +1,20 @@
-import { ADD_FOOD, GET_CONCESSIONS, REMOVE_FOOD, SET_FOOD_TOTAL, SET_SELECTED_FOOD, SET_SUB_TOTAL } from '../types';
+import {
+  ADD_FOOD,
+  GET_CONCESSIONS,
+  GET_PAYMENT_METHODS,
+  REMOVE_FOOD, RESET_SELECTED_FOOD,
+  SET_FOOD_TOTAL,
+  SET_SUB_TOTAL, SET_URL_PAYMENT_VNPAY, SHOW_MESSAGE_PAYMENT_SUCCESS,
+} from '../types';
+import { resetSelectedFood } from '../actions/concession';
 
 const initialState = {
   concessions:[] ,
   selectedFood:[],
   subTotal:0,
-  foodTotal:0
+  foodTotal:0,
+  paymentMethods:[],
+  urlVNPAY:""
 };
 
 const getConcessions = (state, payload) => ({
@@ -47,11 +57,26 @@ export const removeFood = (state,food) => {
   }
 };
 
+const getPaymentMethods = (state, payload) => ({
+  ...state,
+  paymentMethods: payload
+});
 
+
+const setURLVNPAY = (state, payload) => ({
+  ...state,
+  urlVNPAY: payload
+});
+
+
+
+const resetSelectFood = (state) => ({
+  ...state,
+  selectedFood: []
+});
 
 export default (state = initialState, action) => {
   const { type, payload } = action;
-
   switch (type) {
     case GET_CONCESSIONS:
       return getConcessions(state, payload);
@@ -63,6 +88,13 @@ export default (state = initialState, action) => {
       return setSubTotal(state,payload);
     case SET_FOOD_TOTAL:
       return setFoodTotal(state,payload);
+    case GET_PAYMENT_METHODS:
+      return getPaymentMethods(state,payload);
+    case SET_URL_PAYMENT_VNPAY:
+      return setURLVNPAY(state,payload);
+    case RESET_SELECTED_FOOD:
+      return resetSelectFood(state);
+
     default:
       return state;
   }

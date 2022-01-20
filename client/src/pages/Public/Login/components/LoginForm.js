@@ -4,8 +4,8 @@ import { makeStyles } from '@material-ui/styles';
 import { Button, TextField, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import FacebookLogin from 'react-facebook-login';
-import GoogleLogin from 'react-google-login';
-import { login, facebookLogin, googleLogin } from '../../../../store/actions';
+import GoogleLogin, { useGoogleLogin } from 'react-google-login';
+import { login, facebookLogin, googleLogin, loginWithGoogle } from '../../../../store/actions';
 import { history } from '../../../../utils';
 
 const useStyles = makeStyles(theme => ({
@@ -68,9 +68,10 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2)
   }
 }));
+const clientId = '765454672866-ogngmccn89t4b7nkf24glnk87e3mn5e5.apps.googleusercontent.com';
 
 function LoginForm(props) {
-  const { facebookLogin, googleLogin, isAuthenticated, user, redirect } = props;
+  const { facebookLogin, googleLogin, isAuthenticated, user, redirect,loginWithGoogle } = props;
   const classes = useStyles();
   const [values, setValues] = useState({ username: '', password: '' });
 
@@ -88,6 +89,42 @@ function LoginForm(props) {
       [e.target.name]: e.target.value
     });
 
+  const onSuccess = (res) => {
+    console.log('Login Success: currentUser:', res.profileObj);
+    if(res && res.profileObj){
+      loginWithGoogle({
+        email:res.profileObj["email"],
+        familyName:res.profileObj["familyName"],
+        givenName:res.profileObj["familyName"],
+        googleId:res.profileObj["googleId"],
+        imageUrl:res.profileObj["imageUrl"],
+        name:res.profileObj["name"]
+      })
+    }
+
+
+    // login({isSocial:true,body:res.profileObj}).then(res =>{
+    //
+    //   // localStorage.setItem("avatar",res.profileObj["imageUrl"]);
+    // }).catch((res) =>{
+    //     notify("Invalid")
+    //     console.log(res)
+    //   }
+    // );
+
+  };
+
+  const onFailure = (res) => {
+    console.log('Login failed: res:', res);
+  };
+
+  const { signIn } = useGoogleLogin({
+    onSuccess,
+    onFailure,
+    clientId,
+    isSignedIn: true,
+    accessType: 'offline'
+  });
   return (
     <form className={classes.form}>
       <Typography className={classes.title} variant="h2">
@@ -96,10 +133,10 @@ function LoginForm(props) {
 
       <div className={classes.socialLogin}>
         <GoogleLogin
-          clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-          onSuccess={googleLogin}
-          onFailure={googleLogin}
-          cookiePolicy={'single_host_origin'}
+          clientId={clientId}
+          buttonText="Login"
+          onSuccess={onSuccess}
+          onFailure={onFailure}
           render={renderProps => (
             <Button
               onClick={renderProps.onClick}
@@ -117,8 +154,10 @@ function LoginForm(props) {
               }}>
               Login With Google
             </Button>
-          )}
+            )
+          }
         />
+
         <FacebookLogin
           buttonStyle={{ width: '100%', height: 60 }}
           appId={process.env.REACT_APP_FACEBOOK_APP_ID} //APP ID NOT CREATED YET
@@ -170,6 +209,6 @@ const mapStateToProps = state => ({
   isAuthenticated: state.authState.isAuthenticated,
   user: state.authState.user
 });
-export default connect(mapStateToProps, { login, facebookLogin, googleLogin })(
+export default connect(mapStateToProps, { login, facebookLogin, googleLogin,loginWithGoogle })(
   LoginForm
 );

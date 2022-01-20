@@ -54,12 +54,20 @@ export default function BookingCheckout(props) {
             <Grid item>
               <Typography className={classes.bannerTitle}>Tickets</Typography>
               {selectedSeats  && selectedSeats.length > 0 ? (
-                <Typography className={classes.bannerContent}>
-                  {selectedSeats.length} tickets
-                </Typography>
-              ) : (
-                <Typography className={classes.bannerContent}>0</Typography>
-              )}
+                <>
+                  <Typography className={classes.bannerContent}>
+                    {selectedSeats.length} tickets
+                  </Typography>
+                  {
+                    selectedSeats && selectedSeats.map((item,index) => (
+                        <span key={index}>{item["tier"]}{item["numbers"]} {' '}</span>
+                      )
+                    )
+                  }
+                </>
+
+              ) : null
+              }
             </Grid>
             <Grid item>
               <Typography className={classes.bannerTitle}>Price</Typography>

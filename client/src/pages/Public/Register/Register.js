@@ -19,8 +19,8 @@ import FileUpload from '../../../components/FileUpload/FileUpload';
 class Register extends Component {
   state = {
     values: {
-      name: '',
-      username: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phone: '',
       password: '',
@@ -83,8 +83,8 @@ class Register extends Component {
                   <div className={classes.fields}>
                     <TextField
                       className={classes.textField}
-                      label="Full name"
-                      name="name"
+                      label="First name"
+                      name="firstName"
                       value={values.name}
                       onChange={event =>
                         this.handleFieldChange('name', event.target.value)
@@ -93,8 +93,8 @@ class Register extends Component {
                     />
                     <TextField
                       className={classes.textField}
-                      label="User name"
-                      name="username"
+                      label="Last name"
+                      name="lastName"
                       value={values.username}
                       onChange={event =>
                         this.handleFieldChange('username', event.target.value)
@@ -111,16 +111,16 @@ class Register extends Component {
                       }
                       variant="outlined"
                     />
-                    <TextField
-                      className={classes.textField}
-                      label="Mobile Phone"
-                      name="phone"
-                      value={values.phone}
-                      variant="outlined"
-                      onChange={event =>
-                        this.handleFieldChange('phone', event.target.value)
-                      }
-                    />
+                    {/*<TextField*/}
+                    {/*  className={classes.textField}*/}
+                    {/*  label="Mobile Phone"*/}
+                    {/*  name="phone"*/}
+                    {/*  value={values.phone}*/}
+                    {/*  variant="outlined"*/}
+                    {/*  onChange={event =>*/}
+                    {/*    this.handleFieldChange('phone', event.target.value)*/}
+                    {/*  }*/}
+                    {/*/>*/}
                     <TextField
                       className={classes.textField}
                       label="Password"
@@ -131,14 +131,24 @@ class Register extends Component {
                         this.handleFieldChange('password', event.target.value)
                       }
                     />
-                    <FileUpload
-                      className={classes.upload}
-                      file={values.image}
-                      onUpload={event => {
-                        const file = event.target.files[0];
-                        this.handleFieldChange('image', file);
-                      }}
+                    <TextField
+                      className={classes.textField}
+                      label="Comfirm Password"
+                      type="password"
+                      value={values.password}
+                      variant="outlined"
+                      onChange={event =>
+                        this.handleFieldChange('password', event.target.value)
+                      }
                     />
+                    {/*<FileUpload*/}
+                    {/*  className={classes.upload}*/}
+                    {/*  file={values.image}*/}
+                    {/*  onUpload={event => {*/}
+                    {/*    const file = event.target.files[0];*/}
+                    {/*    this.handleFieldChange('image', file);*/}
+                    {/*  }}*/}
+                    {/*/>*/}
                     <div className={classes.policy}>
                       <Checkbox
                         checked={values.policy}

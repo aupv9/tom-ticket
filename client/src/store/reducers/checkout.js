@@ -15,7 +15,7 @@ import {
   SET_SHOW_CONCESSION,
   SET_IS_RESERVED,
   SET_IS_PAYMENT,
-  SET_IS_EXPIRE_ORDER, RESET_ORDER_EXPIRE,
+  SET_IS_EXPIRE_ORDER, RESET_ORDER_EXPIRE, SUB_NEWSLETTER,
 } from '../types';
 
 const initialState = {
@@ -31,7 +31,10 @@ const initialState = {
   showConcession:false,
   isReserved:false,
   isPayment:false,
-  isExpireOrder:false
+  isExpireOrder:false,
+  selectedFood: [],
+  subTotal:0,
+  paymentMethods:[]
 };
 
 const setSelectedSeats = (state, seats) => {
@@ -133,9 +136,13 @@ export const setReserved = (state) => ({
 });
 
 
+// export const subNews = (state) => ({
+//   ...state,
+//   isReserved:!state.isReserved
+// });
+
 
 const resetCheckout = () => initialState;
-
 
 const resetOrderExpire = () => initialState;
 
@@ -173,7 +180,9 @@ export default function(state = initialState, action) {
     case SET_IS_EXPIRE_ORDER:
       return setExpireOrder(state);
     case RESET_ORDER_EXPIRE:
-      return resetOrderExpire(state);
+      return resetOrderExpire();
+    // case SUB_NEWSLETTER:
+    //   return subNews(state,payload);
     default:
       return state;
   }

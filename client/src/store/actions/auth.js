@@ -5,7 +5,7 @@ import {
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  LOGOUT, CHECK_LOGIN, TOGGLE_LOGIN_POPUP,
+  LOGOUT, CHECK_LOGIN, TOGGLE_LOGIN_POPUP, SET_HISTORY_ORDER, RESET_ORDER_EXPIRE,
 } from '../types';
 import { setAlert } from './alert';
 import { setAuthHeaders, removeUser, isLoggedIn } from '../../utils';
@@ -47,6 +47,7 @@ export const login = (username, password) => async dispatch => {
       const { token,fullName } = responseData;
       token && setToken(token);
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
+      dispatch({type:USER_LOADED,payload:responseData})
       dispatch({ type: TOGGLE_LOGIN_POPUP });
       dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
@@ -59,6 +60,36 @@ export const login = (username, password) => async dispatch => {
     dispatch(setAlert(error.message, 'error', 5000));
   }
 };
+
+export const loginWithGoogle = (payload) => async dispatch => {
+  try {
+    const url = host + '/authenticate-social-google';
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const responseData = await response.json();
+    if (response.ok) {
+      const { token,fullName } = responseData;
+      token && setToken(token);
+      dispatch({ type: LOGIN_SUCCESS, payload: responseData });
+      dispatch({type:USER_LOADED,payload:responseData})
+      dispatch({type:RESET_ORDER_EXPIRE})
+
+      dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
+    }
+    if (responseData.error) {
+      dispatch({ type: LOGIN_FAIL });
+      dispatch(setAlert(responseData.error.message, 'error', 5000));
+    }
+  } catch (error) {
+    dispatch({ type: LOGIN_FAIL });
+    dispatch(setAlert(error.message, 'error', 5000));
+  }
+};
+
+
 
 export const facebookLogin = e => async dispatch => {
   try {
@@ -103,6 +134,7 @@ export const googleLogin = ({ profileObj }) => async dispatch => {
     if (response.ok) {
       const { token, fullName } = responseData;
       token && setToken(token);
+      dispatch({ type: USER_LOADED,payload:responseData});
       dispatch({ type: LOGIN_SUCCESS, payload: responseData });
       dispatch(setAlert(`Welcome ${fullName}`, 'success', 5000));
     }
@@ -118,16 +150,13 @@ export const googleLogin = ({ profileObj }) => async dispatch => {
 
 // Register user
 export const register = ({
-  name,
-  username,
+  firstName,lastName,
   email,
-  phone,
-  image,
   password
 }) => async dispatch => {
   try {
-    const url = '/users';
-    const body = { name, username, email, phone, password };
+    const url = host + '/signUp';
+    const body = { firstName,lastName, email, password };
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -137,7 +166,7 @@ export const register = ({
     if (response.ok) {
       const { token,id } = responseData;
       token && setToken(token);
-      if (image) dispatch(uploadImage(id, image)); // Upload image
+      // if (image) dispatch(uploadImage(id, image)); // Upload image
       dispatch({ type: REGISTER_SUCCESS, payload: responseData });
       dispatch(setAlert('Register Success', 'success', 5000));
     }
@@ -156,8 +185,20 @@ export const loadUser = () => async dispatch => {
   if (!isLoggedIn()) return;
   try {
     const token = localStorage.getItem('token');
+    const url = host + "/loadUser";
     if (token) {
-      dispatch({ type: CHECK_LOGIN});
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      if(response.ok){
+        const responseData = await response.json();
+        dispatch({ type: USER_LOADED,payload:responseData});
+      }else{
+        dispatch({ type: AUTH_ERROR});
+      }
     }
     if (token) dispatch({ type: AUTH_ERROR });
   } catch (error) {

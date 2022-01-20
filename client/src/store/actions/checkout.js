@@ -15,7 +15,7 @@ import {
   SET_SHOW_CONCESSION,
   SET_IS_RESERVED,
   SET_IS_EXPIRE_ORDER,
-  RESET_ORDER_EXPIRE,
+  RESET_ORDER_EXPIRE, SUB_NEWSLETTER,
 } from '../types';
 
 export const setSelectedSeats = seats => ({
@@ -68,3 +68,4 @@ export const setShowConcessions = () => ({ type: SET_SHOW_CONCESSION });
 export const setReserved = () => ({ type: SET_IS_RESERVED });
 export const setIsExpireOrder = () => ({ type: SET_IS_EXPIRE_ORDER });
 export const resetOnExpireOrder = () => ({ type: RESET_ORDER_EXPIRE });
+

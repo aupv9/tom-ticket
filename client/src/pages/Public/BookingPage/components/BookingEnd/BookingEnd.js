@@ -51,7 +51,7 @@ export default function BookingEnd(props) {
       totalAmount: subTotal,
       userId: user && user.id || 0,
       showTimesDetailId:showtime.id,
-      isOnline:true
+      online:true
     });
     if(response && response.status === "success"){
       setReserved();
@@ -109,7 +109,7 @@ export default function BookingEnd(props) {
                   </Typography>
                   {
                     selectedSeats && selectedSeats.map((item,index) => (
-                        <span key={index}>{item["tier"]}{item["numbers"]}</span>
+                        <span key={index}>{item["tier"]}{item["numbers"]}{' '}</span>
                       )
                     )
                   }

@@ -59,20 +59,32 @@ class Navbar extends Component {
           <div className={classes.navAccount}>
             <UserPopover logout={logout}>
               <List component="nav">
-                {user && (
-                  <ListItem>
-                    <Link
-                      className={classes.navLink}
-                      to={
-                        user.role !== 'guest'
-                          ? '/admin/dashboard'
-                          : '/mydashboard'
-                      }>
-                      Dashboard
-                    </Link>
-                  </ListItem>
-                )}
-
+                {/*{user && (*/}
+                {/*  <ListItem>*/}
+                {/*    <Link*/}
+                {/*      className={classes.navLink}*/}
+                {/*      to={*/}
+                {/*        user.role !== 'guest'*/}
+                {/*          ? '/admin/dashboard'*/}
+                {/*          : '/mydashboard'*/}
+                {/*      }>*/}
+                {/*      Dashboard*/}
+                {/*    </Link>*/}
+                {/*  </ListItem>*/}
+                {/*)}*/}
+                {
+                  user && (
+                    <ListItem>
+                      <Link
+                        className={classes.navLink}
+                        to={
+                          '/profile'
+                        }>
+                        Profile
+                      </Link>
+                    </ListItem>
+                  )
+                }
                 {isAuth ? (
                   <ListItem>
                     <Link className={classes.navLink} onClick={logout} to="/">

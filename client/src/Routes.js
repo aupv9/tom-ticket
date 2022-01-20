@@ -31,6 +31,8 @@ const BookingPage = lazy(() => import('./pages/Public/BookingPage'));
 
 const Checkin = lazy(() => import('./pages/Public/Checkin'));
 
+const Profile = lazy(() => import( './pages/Public/Profile/Profile'));
+
 const Routes = () => {
   return (
     <Suspense fallback={<Loading />}>
@@ -52,6 +54,13 @@ const Routes = () => {
             layout={PublicLayout}
             component={HomePage}
           />
+          <WithLayoutRoute
+            exact
+            path="/profile"
+            layout={PublicLayout}
+            component={Profile}
+          />
+
           <WithLayoutRoute
             exact
             path="/mydashboard"

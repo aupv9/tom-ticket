@@ -42,13 +42,14 @@ export default function FooterPayment(props) {
     setReserved,
     isReserved,
     setIsExpireOrder,
-    orderNow
+    orderNow,
+    handlePayment
   } = props;
 
   const history = useHistory();
 
   const onPayment = async () =>{
-
+    handlePayment();
     // const response = await addReservation({
     //   seats: selectedSeats.map((item) => item.id),
     //   concessionId:selectedFood.map((item) => item.id),
